@@ -71,12 +71,12 @@
     "light": {
       "paper": "#f6f3ec",
       "ink": "#16140f",
-      "accent": "#a8321e"
+      "accent": "#66e1c2"
     },
     "dark": {
       "paper": "#14130f",
       "ink": "#ece7da",
-      "accent": "#e07a56"
+      "accent": "#83d067"
     }
   }
 }
