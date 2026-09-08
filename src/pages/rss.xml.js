@@ -29,6 +29,8 @@ export async function GET(context) {
     description: SITE.description,
     site: context.site,
     items,
+    // 브라우저로 열었을 때 사람이 읽을 수 있게 (피드 리더는 무시합니다)
+    stylesheet: '/rss.xsl',
     // 끄지 않으면 주소 끝에 / 가 붙어 노트의 #앵커가 깨진다
     //   /notes#slug/  ← 이렇게
     trailingSlash: false,
