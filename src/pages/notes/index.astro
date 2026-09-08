@@ -14,9 +14,6 @@ const rendered = await Promise.all(
   <section class="hero page">
     <p class="label">Notes</p>
     <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">노트</h1>
-    <p class="hero__lede">
-      아직 에세이가 되지 못한 것들. 인용 한 줄, 관찰 한 조각, 나중에 다시 볼 메모.
-    </p>
   </section>
 
   <div class="page">
@@ -40,7 +37,7 @@ const rendered = await Promise.all(
 
           {note.data.source && (
             <p class="label">
-              {'출처 · '}
+              {'출처 '}
               {note.data.sourceUrl ? (
                 <a class="link" href={note.data.sourceUrl} rel="noopener">
                   {note.data.source}

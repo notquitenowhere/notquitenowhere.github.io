@@ -28,7 +28,7 @@ const { title, subtitle, excerpt, date, updated, tags, accent, cover, coverAlt }
     <header class="essay-head page">
       <div class="essay-head__meta">
         <FormattedDate date={date} />
-        <span class="label">{readingTime ?? 1}분 남짓</span>
+        <span class="label">{readingTime ?? 1}분</span>
         {tags.map((t) => <a class="tag" href={`/tags/${encodeURIComponent(t)}`}>{t}</a>)}
       </div>
 
@@ -55,7 +55,7 @@ const { title, subtitle, excerpt, date, updated, tags, accent, cover, coverAlt }
         {
           updated && (
             <p class="label" style="margin-top:var(--space-s)">
-              마지막으로 고친 날 · <FormattedDate date={updated} style="short" className="label" />
+              고침 <FormattedDate date={updated} style="short" className="label" />
             </p>
           )
         }

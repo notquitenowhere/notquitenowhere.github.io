@@ -11,30 +11,15 @@ const notes = (await allNotes()).slice(0, 3);
 
 const featured = essays.find((e) => e.data.featured) ?? essays[0];
 const rest = essays.filter((e) => e.id !== featured?.id).slice(0, 5);
-const lastUpdated = essays[0]?.data.date;
 ---
 
 <Base title={SITE.title} description={SITE.description}>
   <section class="hero page">
-    <p class="label">에세이 · 노트 · 오래 붙잡은 생각</p>
-
-    <h1 class="hero__title" style="margin-top:var(--space-s)">
+    <h1 class="hero__title">
       느리게 읽고<br /><em>오래</em> 씁니다.
     </h1>
 
     <p class="hero__lede">{SITE.description}</p>
-
-    <p class="label" style="margin-top:var(--space-m)">
-      글 {String(essays.length).padStart(2, '0')}편
-      {
-        lastUpdated && (
-          <>
-            {' · 마지막 갱신 '}
-            <FormattedDate date={lastUpdated} style="short" className="label" />
-          </>
-        )
-      }
-    </p>
   </section>
 
   {
@@ -43,9 +28,8 @@ const lastUpdated = essays[0]?.data.date;
         <div class="feature__grid">
           <div>
             <div class="feature__meta">
-              <span class="label" style="color:var(--accent)">이번의 글</span>
               <FormattedDate date={featured.data.date} />
-              <span class="label">{readingMinutes(featured.body)}분 남짓</span>
+              <span class="label">{readingMinutes(featured.body)}분</span>
             </div>
 
             <h2 class="feature__title" style="margin-top:var(--space-s)">
@@ -67,9 +51,6 @@ const lastUpdated = essays[0]?.data.date;
               <p style="color:var(--ink-2);line-height:1.9;border-top:var(--hair);padding-top:var(--space-s)">
                 {featured.data.excerpt ?? autoExcerpt(featured.body, 150)}
               </p>
-              <span class="more" style="margin-top:var(--space-s)">
-                계속 읽기 →
-              </span>
             </div>
           )}
         </div>
@@ -81,7 +62,7 @@ const lastUpdated = essays[0]?.data.date;
     rest.length > 0 && (
       <div class="page">
         <div class="section-head">
-          <h2>그밖에 쓴 것들</h2>
+          <h2>글</h2>
           <a class="more" href="/essays">
             전부 보기 →
           </a>

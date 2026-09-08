@@ -22,6 +22,7 @@ const UNSAFE = /<(Sidenote|Pullquote|Figure)|^\[\^[^\]]+\]:|\[\^[^\]]+\]|^<\w+/
 
 let editor = null;
 let saveTimer = null;
+let composing = false; // 한글 조합 중에는 편집기를 건드리지 않는다
 
 /* ── 잔심부름 ───────────────────────────────────────────────────────── */
 
@@ -175,7 +176,8 @@ function touch() {
   markSaved('…');
   updateMetaPeek();
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => save({ quiet: true }), 1200);
+  if (composing) return; // 조합이 끝나면 다시 건다
+  saveTimer = setTimeout(() => save({ quiet: true }), 2000);
 }
 
 /** 본문이 실제로 사람 손을 탄 경우에만 다시 쓴다. */
@@ -187,6 +189,12 @@ function touchBody() {
 
 async function save({ quiet = false } = {}) {
   if (!state.current || state.saving) return;
+  if (composing) {
+    // 글자를 조합하는 중에 본문을 읽으면 조합이 끊긴다. 조금 뒤에 다시.
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => save({ quiet }), 600);
+    return;
+  }
   state.saving = true;
   clearTimeout(saveTimer);
 
@@ -345,7 +353,6 @@ function boot() {
     language: 'ko-KR',
     usageStatistics: false,
     autofocus: false,
-    placeholder: '여기서부터 씁니다.',
     toolbarItems: [
       ['heading', 'bold', 'italic'],
       ['hr', 'quote'],
@@ -387,6 +394,27 @@ function boot() {
       change: touchBody,
     },
   });
+
+  // 한글 조합 감시 — 조합 중 저장이 끼어들면 자모가 풀린다
+  const bodyEl = $('body');
+  bodyEl.addEventListener('compositionstart', () => {
+    composing = true;
+    clearTimeout(saveTimer);
+  });
+  bodyEl.addEventListener('compositionend', () => {
+    composing = false;
+    touchBody();
+  });
+
+  // 빨간 맞춤법 밑줄은 한글에서 거슬리기만 한다
+  const noSpellcheck = () =>
+    bodyEl.querySelectorAll('[contenteditable="true"], textarea').forEach((el) => {
+      el.setAttribute('spellcheck', 'false');
+      el.setAttribute('autocorrect', 'off');
+      el.setAttribute('autocapitalize', 'off');
+    });
+  noSpellcheck();
+  new MutationObserver(noSpellcheck).observe(bodyEl, { childList: true, subtree: true });
 
   // 사용자 정의 도구 버튼
   document.addEventListener('click', (e) => {
