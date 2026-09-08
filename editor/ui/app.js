@@ -18,6 +18,7 @@ const state = {
 /** 「페이지」 탭에 뜨는 항목들. 배너 문구는 전부 여기서 고친다. */
 const SITE_ITEMS = [
   { key: 'site',     name: '사이트 이름·소개' },
+  { key: 'theme',    name: '색' },
   { key: 'home',     name: '홈 배너' },
   { key: 'essays',   name: '글 배너' },
   { key: 'notes',    name: '노트 배너' },
@@ -29,6 +30,21 @@ const BANNER_FIELDS = [
   { id: 'kicker', label: '작은 제목', tag: 'input' },
   { id: 'title',  label: '큰 제목',   tag: 'textarea', rows: 2 },
   { id: 'lede',   label: '한 줄 소개', tag: 'textarea', rows: 2 },
+];
+
+/** 고르는 색은 모드당 셋뿐. 나머지 톤은 사이트가 이 셋을 섞어 만든다. */
+const THEME_FIELDS = [
+  { id: 'paper',  label: '종이' },
+  { id: 'ink',    label: '잉크' },
+  { id: 'accent', label: '강조' },
+];
+
+const THEME_PRESETS = [
+  { name: '주칠',   light: ['#f6f3ec', '#16140f', '#a8321e'], dark: ['#14130f', '#ece7da', '#e07a56'] },
+  { name: '쪽빛',   light: ['#f4f4f1', '#12151a', '#274c77'], dark: ['#101317', '#e6e8ea', '#7aa5d2'] },
+  { name: '이끼',   light: ['#f3f4ef', '#151810', '#3f6b46'], dark: ['#101310', '#e4e8dd', '#7fb488'] },
+  { name: '먹',     light: ['#f4f4f4', '#141414', '#404040'], dark: ['#121212', '#e8e8e8', '#b4b4b4'] },
+  { name: '치자',   light: ['#f8f4e6', '#1a1710', '#b07d21'], dark: ['#15130d', '#efe9d8', '#d9ac52'] },
 ];
 
 const SITE_FIELDS = [
@@ -244,9 +260,105 @@ function richLine(text = '') {
     .replace(/\r?\n/g, '<br>');
 }
 
+/** 「색」 화면. 모드별로 종이·잉크·강조 셋만 고르고 나머지는 사이트가 섞어 만든다. */
+function openTheme() {
+  state.siteKey = 'theme';
+  state.current = null;
+
+  $('pane').hidden = true;
+  $('empty').hidden = true;
+  $('site-pane').hidden = false;
+  $('site-preview').hidden = true;
+  $('site-title').textContent = '색';
+
+  const group = (mode, label) => `
+    <div class="theme-col">
+      <p class="theme-col__head">${label}</p>
+      ${THEME_FIELDS.map((f) => {
+        const v = state.site.theme[mode][f.id];
+        return `<label class="theme-row">
+          <input type="color" id="tf-${mode}-${f.id}" value="${escapeHtml(v)}" />
+          <span>${f.label}</span>
+          <input class="theme-hex" id="th-${mode}-${f.id}" value="${escapeHtml(v)}" spellcheck="false" />
+        </label>`;
+      }).join('')}
+      <div class="theme-preview" id="tp-${mode}"></div>
+    </div>`;
+
+  $('site-form').innerHTML = `
+    <div class="theme-presets">
+      ${THEME_PRESETS.map((p, i) => `<button type="button" class="btn btn--tiny" data-preset="${i}">${escapeHtml(p.name)}</button>`).join('')}
+    </div>
+    <div class="theme-grid">
+      ${group('light', '밝을 때')}
+      ${group('dark', '어두울 때')}
+    </div>`;
+
+  $('site-form')
+    .querySelectorAll('input[type="color"], .theme-hex')
+    .forEach((el) => el.addEventListener('input', onThemeInput));
+
+  $('site-form')
+    .querySelectorAll('[data-preset]')
+    .forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const p = THEME_PRESETS[Number(btn.dataset.preset)];
+        for (const mode of ['light', 'dark']) {
+          THEME_FIELDS.forEach((f, i) => {
+            $(`tf-${mode}-${f.id}`).value = p[mode][i];
+            $(`th-${mode}-${f.id}`).value = p[mode][i];
+          });
+        }
+        onThemeInput();
+      }),
+    );
+
+  renderThemePreview();
+  markSiteSaved('열림');
+  document.querySelectorAll('#list li').forEach((li) => li.classList.toggle('is-on', li.dataset.site === 'theme'));
+}
+
+function onThemeInput(e) {
+  // 색 고르개와 hex 칸을 서로 맞춰준다
+  const el = e?.target;
+  if (el?.id?.startsWith('tf-')) $(el.id.replace('tf-', 'th-')).value = el.value;
+  if (el?.id?.startsWith('th-') && /^#[0-9a-fA-F]{6}$/.test(el.value)) {
+    $(el.id.replace('th-', 'tf-')).value = el.value;
+  }
+  renderThemePreview();
+  touchSite();
+}
+
+/** 사이트와 똑같은 공식으로 섞어 미리 보여준다. */
+function renderThemePreview() {
+  for (const mode of ['light', 'dark']) {
+    const get = (id) => $(`tf-${mode}-${id}`)?.value ?? '#000000';
+    const paper = get('paper');
+    const ink = get('ink');
+    const accent = get('accent');
+    const box = $(`tp-${mode}`);
+    if (!box) continue;
+
+    const mix = (a, b, pct) => `color-mix(in srgb, ${a} ${pct}%, ${b})`;
+    box.style.setProperty('--p', paper);
+    box.style.setProperty('--i', ink);
+    box.style.setProperty('--a', accent);
+    box.style.setProperty('--rule', mix(ink, paper, 13));
+    box.style.setProperty('--dim', mix(ink, paper, 48));
+    box.style.background = paper;
+    box.style.color = ink;
+    box.innerHTML = `
+      <p class="tp-kicker">Essays</p>
+      <p class="tp-title">느리게 읽고 <em>오래</em> 씁니다.</p>
+      <p class="tp-body">본문은 이런 밝기로 읽힙니다. 괘선과 흐린 글씨가 이 셋에서 나옵니다.</p>
+      <p class="tp-meta">2026년 8월 24일 · 3분</p>`;
+  }
+}
+
 async function openSite(key) {
   if (state.dirty) await save({ quiet: true });
   if (!state.site) state.site = await api('/api/site');
+  if (key === 'theme') return openTheme();
 
   state.siteKey = key;
   state.current = null;
@@ -318,7 +430,13 @@ async function saveSite({ quiet = true } = {}) {
 
   const g = (id) => document.getElementById(`sf-${id}`)?.value ?? '';
 
-  if (state.siteKey === 'site') {
+  if (state.siteKey === 'theme') {
+    for (const mode of ['light', 'dark']) {
+      for (const f of THEME_FIELDS) {
+        state.site.theme[mode][f.id] = document.getElementById(`tf-${mode}-${f.id}`).value;
+      }
+    }
+  } else if (state.siteKey === 'site') {
     for (const f of SITE_FIELDS) {
       const raw = g(f.id).trim();
       state.site.site[f.id] = f.type === 'number' ? Number(raw) || 0 : raw;

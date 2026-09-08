@@ -6,25 +6,20 @@
 
 /* ── 1. 토큰 ───────────────────────────────────────────────────────────── */
 
-:root {
+:where(:root) {
   color-scheme: light;
 
-  /* 종이 — 따뜻한 오프화이트 위에 잉크 */
-  --paper:      #f6f3ec;
-  --paper-sunk: #efeade;
-  --paper-rise: #fdfbf6;
-  --ink:        #16140f;
-  --ink-2:      #4e4839;
-  --ink-3:      #8b8371;
-  --rule:       #ddd6c5;
-  --rule-soft:  #e8e2d4;
-
-  /* 주칠(朱漆) — 단청의 붉은 주색 */
-  --accent:      #a8321e;
-  --accent-ink:  #7d2415;
-  --accent-wash: #f3e3dd;
-
-  --selection: #e8dcbe;
+  /*
+   * 고르는 색은 셋뿐입니다 — 종이, 잉크, 강조.
+   * :where() 로 감싼 것은 이 값이 "기본값"이라는 뜻입니다. 우선순위가 0이라
+   * <head> 에서 주입되는 site.json 의 색이 스타일시트 순서와 무관하게 이깁니다.
+   * 나머지는 아래에서 이 셋을 섞어 만듭니다.
+   * 편집기의 「페이지 → 색」에서 바꾸면 src/data/site.json 에 저장되고,
+   * 그 값이 <head> 에서 이 기본값을 덮어씁니다.
+   */
+  --paper:  #f6f3ec;   /* 따뜻한 오프화이트 */
+  --ink:    #16140f;
+  --accent: #a8321e;   /* 주칠(朱漆) — 단청의 붉은 주색 */
 
   /* 활자 */
   --font-display: "Hahmlet", "Apple SD Gothic Neo", serif;
@@ -67,23 +62,28 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-:root[data-theme="dark"] {
+:where(:root[data-theme="dark"]) {
   color-scheme: dark;
 
-  --paper:      #14130f;
-  --paper-sunk: #100f0c;
-  --paper-rise: #1d1b15;
-  --ink:        #ece7da;
-  --ink-2:      #a9a190;
-  --ink-3:      #746d5e;
-  --rule:       #2f2c24;
-  --rule-soft:  #26241d;
+  --paper:  #14130f;
+  --ink:    #ece7da;
+  --accent: #e07a56;
+}
 
-  --accent:      #e07a56;
-  --accent-ink:  #f0a084;
-  --accent-wash: #2a1f19;
-
-  --selection: #3b3524;
+/*
+ * 파생 색. 종이·잉크·강조를 섞어 만들므로 밝을 때와 어두울 때 같은 공식이
+ * 그대로 통합니다 (섞는 방향이 저절로 뒤집힙니다).
+ * 한 번만 선언하면 두 모드 모두에 적용됩니다.
+ */
+:root {
+  --paper-sunk:  color-mix(in srgb, var(--paper) 96%, var(--ink));
+  --ink-2:       color-mix(in srgb, var(--ink) 74%, var(--paper));
+  --ink-3:       color-mix(in srgb, var(--ink) 48%, var(--paper));
+  --rule:        color-mix(in srgb, var(--ink) 13%, var(--paper));
+  --rule-soft:   color-mix(in srgb, var(--ink) 7%, var(--paper));
+  --accent-ink:  color-mix(in srgb, var(--accent) 76%, var(--ink));
+  --accent-wash: color-mix(in srgb, var(--accent) 13%, var(--paper));
+  --selection:   color-mix(in srgb, var(--accent) 20%, var(--paper));
 }
 
 /* ── 2. 리셋 ───────────────────────────────────────────────────────────── */

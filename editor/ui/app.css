@@ -357,3 +357,70 @@ button, input, textarea { font: inherit; color: inherit; }
   width: 100%;
   outline: none;
 }
+
+/* ── 색 고르기 ──────────────────────────────────────────────────────── */
+
+.theme-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 22px;
+  max-width: 640px;
+}
+.theme-col__head {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 10px;
+}
+.theme-row {
+  display: grid !important;
+  grid-template-columns: 30px 1fr 80px;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.theme-row input[type='color'] {
+  width: 30px; height: 26px; padding: 0;
+  border: 1px solid var(--rule); border-radius: 5px; background: none; cursor: pointer;
+}
+.theme-hex {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 12px;
+  border: 1px solid var(--rule);
+  background: var(--paper-rise);
+  border-radius: 5px;
+  padding: 4px 6px;
+  outline: none;
+}
+.theme-hex:focus { border-color: var(--accent); }
+
+.theme-preview {
+  margin-top: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 16px 16px 18px;
+  overflow: hidden;
+}
+.tp-kicker {
+  font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--dim); margin: 0 0 8px;
+}
+.tp-title {
+  font-family: var(--display);
+  font-size: 22px; font-weight: 300; letter-spacing: -0.035em; line-height: 1.15;
+  margin: 0 0 12px; word-break: keep-all;
+}
+.tp-title em { font-style: normal; color: var(--a); }
+.tp-body {
+  font-family: var(--serif);
+  font-size: 12.5px; line-height: 1.85; margin: 0 0 12px;
+  word-break: keep-all; opacity: 0.82;
+}
+.tp-meta {
+  font-size: 10px; letter-spacing: 0.1em; color: var(--dim);
+  margin: 0; padding-top: 10px; border-top: 1px solid var(--rule);
+}

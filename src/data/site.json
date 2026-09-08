@@ -66,5 +66,17 @@
       "title": "여긴\n*비어* 있습니다.",
       "lede": "주소가 바뀌었거나, 처음부터 없던 쪽입니다."
     }
+  },
+  "theme": {
+    "light": {
+      "paper": "#f6f3ec",
+      "ink": "#16140f",
+      "accent": "#a8321e"
+    },
+    "dark": {
+      "paper": "#14130f",
+      "ink": "#ece7da",
+      "accent": "#e07a56"
+    }
   }
 }

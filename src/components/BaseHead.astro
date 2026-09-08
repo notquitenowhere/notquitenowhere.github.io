@@ -1,5 +1,5 @@
 ---
-import { SITE } from '../consts';
+import { SITE, THEME } from '../consts';
 import '../styles/global.css';
 
 interface Props {
@@ -25,6 +25,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 // 공유 카드 이미지. public/og-default.png 를 두면 자동으로 쓰입니다.
 const ogImage = image ? new URL(image, Astro.site) : undefined;
 const fullTitle = title === SITE.title ? `${SITE.title} — ${SITE.titleLatin}` : `${title} — ${SITE.title}`;
+
+/** 색은 셋만 심으면 됩니다. 나머지 톤은 global.css 가 이걸 섞어 만듭니다. */
+const palette = [
+  `:root{--paper:${THEME.light.paper};--ink:${THEME.light.ink};--accent:${THEME.light.accent}}`,
+  `:root[data-theme="dark"]{--paper:${THEME.dark.paper};--ink:${THEME.dark.ink};--accent:${THEME.dark.accent}}`,
+  // 글마다 정한 강조색은 밝을 때와 어두울 때 모두에 적용합니다.
+  accent ? `:root,:root[data-theme="dark"]{--accent:${accent}}` : '',
+].join('');
 ---
 
 <meta charset="utf-8" />
@@ -52,8 +60,8 @@ const fullTitle = title === SITE.title ? `${SITE.title} — ${SITE.titleLatin}` 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" type="application/rss+xml" title={SITE.title} href={new URL('rss.xml', Astro.site)} />
 
-<meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#14130f" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content={THEME.light.paper} media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content={THEME.dark.paper} media="(prefers-color-scheme: dark)" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -66,7 +74,7 @@ const fullTitle = title === SITE.title ? `${SITE.title} — ${SITE.titleLatin}` 
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
 />
 
-{accent && <style set:html={`:root{--accent:${accent};}`} />}
+<style set:html={palette} />
 
 <!-- 테마 결정은 첫 페인트 전에. 깜빡임을 막는다. -->
 <script is:inline>

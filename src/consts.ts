@@ -8,5 +8,6 @@ import data from './data/site.json';
 export const SITE = data.site;
 export const NAV = data.nav;
 export const BANNERS = data.banners;
+export const THEME = data.theme;
 
 export type Banner = { kicker?: string; title?: string; lede?: string };
