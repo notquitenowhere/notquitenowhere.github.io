@@ -343,6 +343,37 @@ if (!existsSync(path.join(UI, 'vendor', 'toastui.js'))) {
   await buildVendor({ quiet: true });
 }
 
+// 포트가 이미 물려 있으면 스택 트레이스 대신 사람이 읽을 수 있는 안내를 낸다.
+server.on('error', async (err) => {
+  if (err.code !== 'EADDRINUSE') throw err;
+
+  // 이미 우리 편집기가 떠 있는 것인지 확인해 본다.
+  let mine = false;
+  try {
+    const res = await fetch(`http://127.0.0.1:${PORT}/api/status`, {
+      signal: AbortSignal.timeout(1500),
+    });
+    mine = res.ok;
+  } catch {
+    mine = false;
+  }
+
+  if (mine) {
+    console.log(`\n  편집기가 이미 열려 있습니다.\n  → http://localhost:${PORT}\n`);
+    console.log('  브라우저에서 그 주소를 여시면 됩니다.\n');
+  } else {
+    console.error(`\n  ${PORT} 번 포트를 다른 프로그램이 쓰고 있습니다.\n`);
+    console.error('  둘 중 하나를 하세요.\n');
+    console.error('  1) 다른 포트로 열기');
+    console.error(`       EDITOR_PORT=4323 npm run write        (PowerShell: $env:EDITOR_PORT=4323; npm run write)\n`);
+    console.error('  2) 그 프로그램을 끄기 (PowerShell)');
+    console.error(
+      `       Get-NetTCPConnection -LocalPort ${PORT} -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }\n`,
+    );
+  }
+  process.exit(mine ? 0 : 1);
+});
+
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`\n  글 편집기가 열렸습니다\n  → http://localhost:${PORT}\n`);
   console.log(`  미리보기를 같이 보려면 다른 창에서: npm run dev\n`);
