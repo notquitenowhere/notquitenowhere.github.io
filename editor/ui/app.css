@@ -1,0 +1,289 @@
+/* 글 편집기 — 사이트와 같은 종이·잉크·주칠 팔레트를 쓴다. */
+
+:root {
+  --paper: #f6f3ec;
+  --paper-sunk: #efeade;
+  --paper-rise: #fdfbf6;
+  --ink: #16140f;
+  --ink-2: #4e4839;
+  --ink-3: #8b8371;
+  --rule: #ddd6c5;
+  --rule-soft: #e8e2d4;
+  --accent: #a8321e;
+  --accent-wash: #f3e3dd;
+
+  --sans: 'Pretendard Variable', Pretendard, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  --serif: 'Gowun Batang', Georgia, serif;
+  --display: 'Hahmlet', serif;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dim { color: var(--ink-3); }
+
+button, input, textarea { font: inherit; color: inherit; }
+
+.shell { display: flex; height: 100vh; }
+
+/* ── 왼쪽 목록 ──────────────────────────────────────────────────────── */
+
+.rail {
+  width: 274px;
+  flex: none;
+  border-right: 1px solid var(--rule);
+  background: var(--paper-sunk);
+  display: flex;
+  flex-direction: column;
+}
+
+.rail__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px 10px;
+}
+.mark { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+.mark span { font-weight: 300; }
+
+.tabs { display: flex; gap: 4px; padding: 0 12px 10px; }
+.tab {
+  flex: 1;
+  border: 1px solid var(--rule);
+  background: transparent;
+  border-radius: 999px;
+  padding: 5px 0;
+  cursor: pointer;
+  color: var(--ink-2);
+  transition: all 200ms var(--ease);
+}
+.tab.is-on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.list { list-style: none; margin: 0; padding: 4px 8px 12px; overflow-y: auto; flex: 1; }
+.list li {
+  padding: 9px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: background 180ms var(--ease);
+}
+.list li:hover { background: var(--accent-wash); }
+.list li.is-on { background: var(--ink); color: var(--paper); }
+.list li.is-on .row-meta { color: rgba(246, 243, 236, 0.6); }
+.row-title {
+  font-family: var(--display);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+.row-meta { font-size: 11.5px; color: var(--ink-3); margin-top: 3px; display: flex; gap: 7px; }
+.badge {
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--accent);
+}
+.list li.is-on .badge { color: #f0a084; }
+
+.rail__foot {
+  border-top: 1px solid var(--rule);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+.rail__foot a { color: var(--ink-2); text-decoration: none; }
+.rail__foot a:hover { color: var(--accent); }
+
+/* ── 버튼 ───────────────────────────────────────────────────────────── */
+
+.btn {
+  border: 1px solid var(--rule);
+  background: var(--paper-rise);
+  border-radius: 6px;
+  padding: 6px 13px;
+  cursor: pointer;
+  transition: all 180ms var(--ease);
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--ink-3); }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--ink-3); }
+.btn--ghost:hover { color: var(--accent); border-color: var(--rule); }
+.btn--new { margin: 0 12px 10px; padding: 8px; background: transparent; border-style: dashed; }
+.btn--new:hover { background: var(--accent-wash); border-color: var(--accent); color: var(--accent); }
+.btn--go { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn--go:hover { background: var(--accent); border-color: var(--accent); }
+.btn--tiny { padding: 3px 8px; font-size: 12px; }
+.btn[disabled] { opacity: 0.45; pointer-events: none; }
+
+/* ── 오른쪽 편집 ────────────────────────────────────────────────────── */
+
+.pane { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.pane__scroll { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 22px 26px 0; }
+
+.pane--empty { align-items: center; justify-content: center; text-align: center; }
+.pane--empty .big { font-family: var(--display); font-size: 22px; margin: 0 0 4px; font-weight: 300; }
+.pane--empty .dim { margin-top: 18px; font-size: 13px; }
+
+.title-input {
+  border: 0;
+  background: transparent;
+  font-family: var(--display);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  padding: 0 0 6px;
+  width: 100%;
+  outline: none;
+}
+.title-input::placeholder { color: var(--rule); }
+
+.sub-input {
+  border: 0;
+  background: transparent;
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--ink-2);
+  padding: 0 0 12px;
+  width: 100%;
+  outline: none;
+}
+.sub-input::placeholder { color: var(--ink-3); opacity: 0.5; }
+
+/* 글 정보 접이식 */
+.meta { border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft); }
+.meta summary {
+  cursor: pointer;
+  padding: 9px 0;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  user-select: none;
+}
+.meta summary::marker { color: var(--rule); }
+.meta__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px 18px;
+  padding: 4px 0 16px;
+}
+.meta__full { grid-column: 1 / -1; }
+.meta label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--ink-2); }
+.meta label > span:first-child { color: var(--ink-3); }
+.meta em { font-style: normal; opacity: 0.75; }
+.meta input:not([type='checkbox']):not([type='color']),
+.meta textarea {
+  border: 1px solid var(--rule);
+  background: var(--paper-rise);
+  border-radius: 5px;
+  padding: 6px 9px;
+  font-size: 13px;
+  outline: none;
+  resize: vertical;
+}
+.meta input:focus, .meta textarea:focus { border-color: var(--accent); }
+.swatch { display: flex; align-items: center; gap: 8px; }
+.swatch input[type='color'] {
+  width: 34px; height: 26px; padding: 0;
+  border: 1px solid var(--rule); border-radius: 5px; background: none; cursor: pointer;
+}
+.check { flex-direction: row !important; align-items: center; gap: 7px !important; cursor: pointer; }
+.check input { width: 15px; height: 15px; accent-color: var(--accent); }
+
+.mdx-note {
+  margin: 12px 0 0;
+  padding: 9px 12px;
+  background: var(--accent-wash);
+  border-left: 2px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+#body { flex: 1; min-height: 0; margin-top: 14px; }
+
+/* ── 아래 막대 ──────────────────────────────────────────────────────── */
+
+.bar {
+  border-top: 1px solid var(--rule);
+  background: var(--paper-sunk);
+  padding: 10px 26px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.check--draft { font-size: 12.5px; color: var(--ink-2); display: flex; align-items: center; gap: 7px; }
+.bar__right { margin-left: auto; display: flex; gap: 8px; }
+.saved { font-size: 12px; }
+
+/* ── 알림 ───────────────────────────────────────────────────────────── */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 11px 18px;
+  border-radius: 7px;
+  font-size: 13px;
+  max-width: 70vw;
+  line-height: 1.6;
+  z-index: 99;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
+  white-space: pre-wrap;
+}
+.toast a { color: #f0a084; }
+.toast--bad { background: #7d2415; }
+
+/* ── Toast UI 편집기를 사이트 조판에 맞춘다 ─────────────────────────── */
+
+.toastui-editor-defaultUI { border: 1px solid var(--rule); border-radius: 6px; }
+.toastui-editor-defaultUI-toolbar { background: var(--paper-sunk); border-bottom: 1px solid var(--rule); }
+.toastui-editor-mode-switch { background: var(--paper-sunk); }
+
+.toastui-editor-contents,
+.toastui-editor .ProseMirror,
+.toastui-editor-md-container .toastui-editor {
+  font-family: var(--serif) !important;
+  font-size: 16px;
+  line-height: 1.9;
+  word-break: keep-all;
+}
+.toastui-editor-contents p { line-height: 1.9; }
+.toastui-editor-contents h1,
+.toastui-editor-contents h2,
+.toastui-editor-contents h3 {
+  font-family: var(--display) !important;
+  letter-spacing: -0.025em;
+  border: 0;
+  padding: 0;
+}
+.toastui-editor-contents h2 { font-size: 1.5em; margin-top: 1.9em; }
+.toastui-editor-contents h3 { font-size: 1.2em; }
+.toastui-editor-contents blockquote {
+  border-left: 2px solid var(--accent);
+  color: var(--ink-2);
+  padding-left: 1rem;
+}
+.toastui-editor-contents blockquote p { color: inherit; }
+.toastui-editor-contents a { color: var(--accent); }

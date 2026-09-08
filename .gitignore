@@ -1,6 +1,7 @@
 # 빌드 산출물
 dist/
 .astro/
+editor/ui/vendor/
 
 # 의존성
 node_modules/

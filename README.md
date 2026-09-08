@@ -19,8 +19,32 @@ npm run preview  # 빌드 결과 확인
 
 ## 2. 글 쓰기
 
+### 편집기로 (권장)
+
 ```bash
-npm run new -- "글 제목"           # src/content/essays/글-제목.mdx
+npm run write     # http://localhost:4322
+```
+
+브라우저에 편집기가 열립니다. 마크다운 문법을 몰라도 됩니다.
+
+- 왼쪽에 글 목록, 오른쪽에 편집 화면
+- 본문은 **보이는 대로** 씁니다 — 굵게·제목·인용·목록은 버튼
+- 이미지는 **끌어다 놓으면** `public/images/` 에 저장되고 본문에 들어갑니다
+- 1초쯤 쉬면 **자동 저장**. `Ctrl+S` 로 바로 저장
+- **초안** 체크를 풀고 **발행하기** 를 누르면 commit·push 까지 한 번에
+
+파일은 그대로 마크다운이라, 같은 글을 Obsidian·VS Code 로 열어도 똑같습니다.
+
+미리보기를 같이 보려면 다른 창에서 `npm run dev` 를 띄워두세요.
+
+> **각주·여백주석이 들어 있는 글**은 편집기가 마크다운 모드로 엽니다.
+> 위지윅 변환이 그 문법들을 되살리지 못하기 때문입니다. 본문을 건드리지 않으면
+> 파일은 한 글자도 바뀌지 않습니다.
+
+### 터미널로
+
+```bash
+npm run new -- "글 제목"           # src/content/essays/글-제목.md
 npm run new -- "짧은 생각" --note  # src/content/notes/짧은-생각.md
 ```
 
@@ -158,6 +182,11 @@ src/
 ├─ lib/                   읽기 시간·발췌·정렬
 ├─ pages/                 홈 · 글 · 노트 · 연대기 · 소개 · 태그 · RSS · 404
 └─ styles/global.css      디자인 시스템 전부
+
+editor/                    글 편집기 (npm run write). 사이트에는 안 올라갑니다
+├─ server.mjs              127.0.0.1 에만 열리는 로컬 서버
+├─ build-vendor.mjs        편집기 번들 만들기 (없으면 자동 실행)
+└─ ui/                     편집기 화면
 ```
 
 RSS는 `/rss.xml`, 사이트맵은 `/sitemap-index.xml`에 자동 생성됩니다.

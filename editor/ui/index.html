@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>글 편집기 — notquitenowhere</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@300..700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+
+    <link rel="stylesheet" href="/vendor/toastui-editor.css" />
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+
+  <body>
+    <div class="shell">
+      <!-- 왼쪽: 글 목록 -->
+      <aside class="rail">
+        <header class="rail__head">
+          <span class="mark">notquite<span>nowhere</span></span>
+          <button class="btn btn--ghost" id="refresh" title="목록 새로고침">↻</button>
+        </header>
+
+        <div class="tabs" role="tablist">
+          <button class="tab is-on" data-kind="essays" role="tab">글</button>
+          <button class="tab" data-kind="notes" role="tab">노트</button>
+        </div>
+
+        <button class="btn btn--new" id="new-post">＋ 새 글 쓰기</button>
+
+        <ul class="list" id="list"></ul>
+
+        <footer class="rail__foot">
+          <a href="http://localhost:4321" target="_blank" rel="noopener">사이트 미리보기 ↗</a>
+          <span id="branch" class="dim"></span>
+        </footer>
+      </aside>
+
+      <!-- 오른쪽: 편집 -->
+      <main class="pane" id="pane" hidden>
+        <div class="pane__scroll">
+          <input class="title-input" id="title" placeholder="제목" autocomplete="off" />
+          <input class="sub-input" id="subtitle" placeholder="부제 — 없어도 됩니다" autocomplete="off" />
+
+          <details class="meta" id="meta">
+            <summary>글 정보 <span class="dim" id="meta-peek"></span></summary>
+
+            <div class="meta__grid">
+              <label>
+                <span>날짜</span>
+                <input type="date" id="date" />
+              </label>
+
+              <label>
+                <span>주소 (파일 이름)</span>
+                <input id="slug" autocomplete="off" spellcheck="false" />
+              </label>
+
+              <label class="meta__full">
+                <span>태그 <em>쉼표로 구분</em></span>
+                <input id="tags" placeholder="기술, 시간" autocomplete="off" />
+              </label>
+
+              <label class="meta__full" data-only="essays">
+                <span>발췌 <em>목록에 뜨는 한두 줄. 비우면 본문에서 자동으로 만듭니다</em></span>
+                <textarea id="excerpt" rows="2"></textarea>
+              </label>
+
+              <label data-only="essays">
+                <span>강조색</span>
+                <span class="swatch">
+                  <input type="color" id="accent" value="#a8321e" />
+                  <button type="button" class="btn btn--tiny" id="accent-clear">기본값으로</button>
+                </span>
+              </label>
+
+              <label data-only="notes">
+                <span>출처</span>
+                <input id="source" autocomplete="off" />
+              </label>
+
+              <label data-only="notes">
+                <span>출처 주소</span>
+                <input id="sourceUrl" placeholder="https://" autocomplete="off" />
+              </label>
+
+              <label class="check" data-only="essays">
+                <input type="checkbox" id="featured" />
+                <span>홈 맨 위에 크게 걸기</span>
+              </label>
+            </div>
+          </details>
+
+          <div class="mdx-note" id="mdx-note" hidden>
+            이 글에는 <b>각주</b>나 <b>여백주석·큰 인용·그림틀</b>이 들어 있습니다.
+            위지윅으로 바꾸면 이 문법들이 깨지므로 <b>마크다운 모드</b>로 열었습니다.
+            글자는 그대로 고치시면 되고, 굵게·제목은 오른쪽 아래 <b>위지윅</b> 탭에서
+            쓰던 방식대로 쓸 수 있습니다 (다만 그 순간 각주 문법이 바뀔 수 있습니다).
+          </div>
+
+          <div id="body"></div>
+        </div>
+
+        <footer class="bar">
+          <label class="check check--draft">
+            <input type="checkbox" id="draft" />
+            <span>초안 — 내 컴퓨터에서만 보임</span>
+          </label>
+
+          <span class="saved dim" id="saved"></span>
+
+          <span class="bar__right">
+            <button class="btn btn--ghost" id="delete">삭제</button>
+            <button class="btn" id="save">저장</button>
+            <button class="btn btn--go" id="publish">발행하기</button>
+          </span>
+        </footer>
+      </main>
+
+      <div class="pane pane--empty" id="empty">
+        <div>
+          <p class="big">왼쪽에서 글을 고르거나</p>
+          <p class="big"><b>새 글 쓰기</b>를 누르세요.</p>
+          <p class="dim">쓴 내용은 자동으로 저장됩니다. 발행하기를 눌러야 사이트에 올라갑니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" hidden></div>
+
+    <script src="/vendor/toastui.js"></script>
+    <script src="/vendor/i18n/ko-kr.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
