@@ -21,7 +21,9 @@ const IMAGES = path.join(ROOT, 'public', 'images');
 const DIRS = {
   essays: path.join(ROOT, 'src', 'content', 'essays'),
   notes: path.join(ROOT, 'src', 'content', 'notes'),
+  pages: path.join(ROOT, 'src', 'content', 'pages'),
 };
+const SITE_JSON = path.join(ROOT, 'src', 'data', 'site.json');
 
 const PORT = Number(process.env.EDITOR_PORT ?? 4322);
 
@@ -75,6 +77,20 @@ function buildPost(kind, data, body) {
   const out = {};
   out.title = String(data.title ?? '').trim() || '제목 없음';
 
+  if (kind === 'pages') {
+    // 고정 쪽은 날짜도 태그도 없다. 배너 세 줄과 본문뿐.
+    const page = { title: out.title };
+    if (data.kicker?.trim()) page.kicker = data.kicker.trim();
+    if (data.lede?.trim()) page.lede = data.lede.trim();
+    const yamlPage = YAML.stringify(page, { lineWidth: 0 }).trimEnd();
+    return `---
+${yamlPage}
+---
+
+${String(body ?? '').trim()}
+`;
+  }
+
   if (kind === 'essays') {
     if (data.subtitle?.trim()) out.subtitle = data.subtitle.trim();
     if (data.excerpt?.trim()) out.excerpt = data.excerpt.trim();
@@ -114,6 +130,14 @@ function slugify(title) {
   );
 }
 
+/** 파일이 어느 컬렉션에 속하는지 */
+function kindOf(full) {
+  for (const [kind, dir] of Object.entries(DIRS)) {
+    if (full.startsWith(dir + path.sep)) return kind;
+  }
+  return 'essays';
+}
+
 async function uniqueFile(dir, slug, ext) {
   let name = `${slug}.${ext}`;
   let i = 2;
@@ -142,7 +166,7 @@ async function listPosts() {
         slug: name.replace(/\.mdx?$/, ''),
         ext: name.endsWith('.mdx') ? 'mdx' : 'md',
         title: data.title ?? name,
-        date: toDateString(data.date),
+        date: data.date ? toDateString(data.date) : '',
         tags: Array.isArray(data.tags) ? data.tags : [],
         draft: data.draft === true,
       });
@@ -219,7 +243,7 @@ const routes = {
       file: path.relative(ROOT, full).split(path.sep).join('/'),
       slug: path.basename(full).replace(/\.mdx?$/, ''),
       ext: full.endsWith('.mdx') ? 'mdx' : 'md',
-      kind: full.startsWith(DIRS.notes) ? 'notes' : 'essays',
+      kind: kindOf(full),
       data: { ...data, date: toDateString(data.date) },
       body,
     };
@@ -237,7 +261,7 @@ const routes = {
 
   async 'POST /api/post'(req, url, payload) {
     let full = resolveContent(payload.file);
-    const kind = full.startsWith(DIRS.notes) ? 'notes' : 'essays';
+    const kind = kindOf(full);
 
     // 본문에 MDX 부품이 있으면 확장자를 .mdx 로 올린다 (없으면 .md 로 유지)
     const needsMdx = /<(Sidenote|Pullquote|Figure)\b/.test(payload.body ?? '');
@@ -281,6 +305,18 @@ const routes = {
     while (existsSync(path.join(IMAGES, name))) name = `${base}-${i++}${ext}`;
     await writeFile(path.join(IMAGES, name), raw);
     return { url: `/images/${name}` };
+  },
+
+  async 'GET /api/site'() {
+    return JSON.parse(await readFile(SITE_JSON, 'utf8'));
+  },
+
+  async 'POST /api/site'(req, url, payload) {
+    if (!payload || typeof payload !== 'object' || !payload.site || !payload.banners) {
+      throw new HttpError(400, '사이트 정보 형태가 올바르지 않습니다');
+    }
+    await writeFile(SITE_JSON, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+    return { ok: true };
   },
 
   async 'GET /api/status'() {

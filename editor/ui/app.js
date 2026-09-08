@@ -11,7 +11,35 @@ const state = {
   saving: false,
   loading: false,    // 글을 여는 중에는 저장하지 않는다
   originalBody: '',  // 파일에서 읽은 본문 그대로
+  site: null,        // src/data/site.json 전체
+  siteKey: null,     // 지금 폼에 띄운 항목 (site | home | essays | ...)
 };
+
+/** 「페이지」 탭에 뜨는 항목들. 배너 문구는 전부 여기서 고친다. */
+const SITE_ITEMS = [
+  { key: 'site',     name: '사이트 이름·소개' },
+  { key: 'home',     name: '홈 배너' },
+  { key: 'essays',   name: '글 배너' },
+  { key: 'notes',    name: '노트 배너' },
+  { key: 'archive',  name: '연대기 배너' },
+  { key: 'notFound', name: '없는 쪽 (404)' },
+];
+
+const BANNER_FIELDS = [
+  { id: 'kicker', label: '작은 제목', tag: 'input' },
+  { id: 'title',  label: '큰 제목',   tag: 'textarea', rows: 2 },
+  { id: 'lede',   label: '한 줄 소개', tag: 'textarea', rows: 2 },
+];
+
+const SITE_FIELDS = [
+  { id: 'title',       label: '사이트 이름',   tag: 'input' },
+  { id: 'titleSplitAt',label: '이름을 가늘게 바꿀 위치 (글자 수)', tag: 'input', type: 'number' },
+  { id: 'titleLatin',  label: '이름 옆 작은 글씨', tag: 'input' },
+  { id: 'description', label: '한 줄 소개',    tag: 'textarea', rows: 2 },
+  { id: 'author',      label: '저자',          tag: 'input' },
+  { id: 'email',       label: '메일',          tag: 'input' },
+  { id: 'since',       label: '시작 연도',      tag: 'input', type: 'number' },
+];
 
 /**
  * 위지윅이 되살리지 못하는 문법들.
@@ -57,6 +85,9 @@ async function loadList(keepSelection = true) {
 
 function renderList() {
   const ul = $('list');
+
+  if (state.kind === 'pages') return renderPageList();
+
   const rows = state.posts.filter((p) => p.kind === state.kind);
 
   if (!rows.length) {
@@ -83,6 +114,33 @@ function renderList() {
   });
 }
 
+/** 「페이지」 탭: 배너 항목들 + 고정 쪽 콘텐츠 파일 */
+function renderPageList() {
+  const ul = $('list');
+  const files = state.posts.filter((p) => p.kind === 'pages');
+
+  ul.innerHTML =
+    SITE_ITEMS.map(
+      (it) => `<li data-site="${it.key}"><div class="row-title">${escapeHtml(it.name)}</div></li>`,
+    ).join('') +
+    files
+      .map(
+        (p) => `
+        <li data-file="${escapeHtml(p.file)}">
+          <div class="row-title">${escapeHtml(p.title)}</div>
+          <div class="row-meta"><span>본문</span></div>
+        </li>`,
+      )
+      .join('');
+
+  ul.querySelectorAll('li[data-site]').forEach((li) =>
+    li.addEventListener('click', () => openSite(li.dataset.site)),
+  );
+  ul.querySelectorAll('li[data-file]').forEach((li) =>
+    li.addEventListener('click', () => openPost(li.dataset.file)),
+  );
+}
+
 function highlight(file) {
   document.querySelectorAll('#list li').forEach((li) => {
     li.classList.toggle('is-on', li.dataset.file === file);
@@ -98,11 +156,14 @@ async function openPost(file) {
   state.current = post;
 
   $('empty').hidden = true;
+  $('site-pane').hidden = true;
+  state.siteKey = null;
   $('pane').hidden = false;
 
   const d = post.data ?? {};
   $('title').value = d.title ?? '';
-  $('subtitle').value = d.subtitle ?? '';
+  $('kicker').value = d.kicker ?? '';
+  $('subtitle').value = d.subtitle ?? d.lede ?? '';
   $('date').value = d.date ?? '';
   $('slug').value = post.slug ?? '';
   $('tags').value = (d.tags ?? []).join(', ');
@@ -118,6 +179,13 @@ async function openPost(file) {
   document.querySelectorAll('[data-only]').forEach((el) => {
     el.style.display = el.dataset.only === post.kind ? '' : 'none';
   });
+  // 고정 쪽은 날짜도 태그도 초안도 없다
+  const isPage = post.kind === 'pages';
+  $('meta').style.display = isPage ? 'none' : '';
+  document.querySelector('.check--draft').style.display = isPage ? 'none' : '';
+  $('delete').style.display = isPage ? 'none' : '';
+  $('kicker').hidden = !isPage;
+  $('subtitle').placeholder = isPage ? '한 줄 소개' : '부제';
 
   // 위지윅이 되살리지 못하는 문법(각주·MDX 부품·직접 쓴 HTML)이 있으면
   // 마크다운 모드로 연다. 위지윅을 거치면 그대로 망가지기 때문.
@@ -146,6 +214,9 @@ function collect() {
     body: state.bodyDirty ? editor.getMarkdown() : state.originalBody,
     data: {
       title: $('title').value,
+      // 고정 쪽에서는 부제 칸이 곧 배너의 한 줄 소개다
+      kicker: $('kicker').value,
+      lede: kind === 'pages' ? $('subtitle').value : '',
       subtitle: $('subtitle').value,
       excerpt: $('excerpt').value,
       date: $('date').value,
@@ -162,6 +233,121 @@ function collect() {
 function updateMetaPeek() {
   const tags = $('tags').value.trim();
   $('meta-peek').textContent = [$('date').value, tags].filter(Boolean).join(' · ');
+}
+
+/* ── 배너·사이트 정보 ───────────────────────────────────────────────── */
+
+/** 배너 문구의 작은 문법을 화면에서와 똑같이 그린다: *강조*, 줄바꿈 */
+function richLine(text = '') {
+  return escapeHtml(text)
+    .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+    .replace(/\r?\n/g, '<br>');
+}
+
+async function openSite(key) {
+  if (state.dirty) await save({ quiet: true });
+  if (!state.site) state.site = await api('/api/site');
+
+  state.siteKey = key;
+  state.current = null;
+
+  $('pane').hidden = true;
+  $('empty').hidden = true;
+  $('site-pane').hidden = false;
+
+  const isSite = key === 'site';
+  const fields = isSite ? SITE_FIELDS : BANNER_FIELDS;
+  const values = isSite ? state.site.site : (state.site.banners[key] ?? {});
+
+  $('site-title').textContent = SITE_ITEMS.find((i) => i.key === key)?.name ?? key;
+
+  $('site-form').innerHTML = fields
+    .map((f) => {
+      const v = escapeHtml(values[f.id] ?? '');
+      const input =
+        f.tag === 'textarea'
+          ? `<textarea id="sf-${f.id}" rows="${f.rows ?? 2}">${v}</textarea>`
+          : `<input id="sf-${f.id}" type="${f.type ?? 'text'}" value="${v}" autocomplete="off" />`;
+      return `<label><span>${escapeHtml(f.label)}</span>${input}</label>`;
+    })
+    .join('');
+
+  if (isSite) {
+    const lines = (state.site.site.links ?? []).map((l) => `${l.label} | ${l.href}`).join('\n');
+    $('site-form').insertAdjacentHTML(
+      'beforeend',
+      `<label><span>바깥 링크 — 한 줄에 하나, "이름 | 주소"</span><textarea id="sf-links" rows="4">${escapeHtml(lines)}</textarea></label>`,
+    );
+  }
+
+  $('site-preview').hidden = isSite;
+  $('site-form')
+    .querySelectorAll('input, textarea')
+    .forEach((el) => el.addEventListener('input', () => {
+      renderSitePreview();
+      touchSite();
+    }));
+
+  renderSitePreview();
+  markSiteSaved('열림');
+  document.querySelectorAll('#list li').forEach((li) => li.classList.toggle('is-on', li.dataset.site === key));
+}
+
+function renderSitePreview() {
+  if ($('site-preview').hidden) return;
+  const g = (id) => document.getElementById(`sf-${id}`)?.value ?? '';
+  $('site-preview').querySelector('.preview__kicker').textContent = g('kicker');
+  $('site-preview').querySelector('.preview__title').innerHTML = richLine(g('title'));
+  $('site-preview').querySelector('.preview__lede').innerHTML = richLine(g('lede'));
+}
+
+function markSiteSaved(text) {
+  $('site-saved').textContent = text;
+}
+
+let siteTimer = null;
+function touchSite() {
+  markSiteSaved('…');
+  clearTimeout(siteTimer);
+  siteTimer = setTimeout(saveSite, 1200);
+}
+
+async function saveSite({ quiet = true } = {}) {
+  if (!state.site || !state.siteKey) return;
+  clearTimeout(siteTimer);
+
+  const g = (id) => document.getElementById(`sf-${id}`)?.value ?? '';
+
+  if (state.siteKey === 'site') {
+    for (const f of SITE_FIELDS) {
+      const raw = g(f.id).trim();
+      state.site.site[f.id] = f.type === 'number' ? Number(raw) || 0 : raw;
+    }
+    state.site.site.links = g('links')
+      .split('\n')
+      .map((line) => line.split('|').map((x) => x.trim()))
+      .filter(([label, href]) => label && href)
+      .map(([label, href]) => ({ label, href }));
+  } else {
+    const b = {};
+    for (const f of BANNER_FIELDS) b[f.id] = g(f.id).trim();
+    state.site.banners[state.siteKey] = b;
+  }
+
+  try {
+    await api('/api/site', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state.site),
+    });
+    const now = new Date();
+    markSiteSaved(`저장됨 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
+    if (!quiet) toast('저장했습니다.');
+    refreshStatus();
+  } catch (err) {
+    markSiteSaved('저장 실패');
+    toast(escapeHtml(err.message), 'bad', 5000);
+  }
 }
 
 /* ── 저장 ───────────────────────────────────────────────────────────── */
@@ -228,6 +414,32 @@ async function save({ quiet = false } = {}) {
 
 /* ── 발행 ───────────────────────────────────────────────────────────── */
 
+/** commit + push. 글이든 배너든 이 한 곳을 지난다. */
+async function publishAll(message, viewPath) {
+  try {
+    const res = await api('/api/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+
+    if (res.step === 'nothing') {
+      toast('올릴 변경이 없습니다. 이미 최신입니다.');
+    } else if (res.ok) {
+      const link = viewPath
+        ? `\n<a href="https://notquitenowhere.github.io${viewPath}" target="_blank" rel="noopener">사이트에서 보기 ↗</a>`
+        : '';
+      toast(`올렸습니다. 30초쯤 뒤 반영됩니다.${link}`, 'ok', 9000);
+    } else {
+      toast(`${res.step} 단계에서 막혔습니다:\n${escapeHtml(res.out.slice(0, 400))}`, 'bad', 12000);
+    }
+  } catch (err) {
+    toast(escapeHtml(err.message), 'bad', 8000);
+  } finally {
+    refreshStatus();
+  }
+}
+
 async function publish() {
   if (!state.current) return;
 
@@ -243,31 +455,17 @@ async function publish() {
   try {
     await save({ quiet: true });
     const title = $('title').value.trim() || '글';
-    const res = await api('/api/publish', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: `${title}` }),
-    });
-
-    if (res.step === 'nothing') {
-      toast('올릴 변경이 없습니다. 이미 최신입니다.');
-    } else if (res.ok) {
-      const slug = $('slug').value.trim();
-      const base = state.current.kind === 'notes' ? '/notes' : `/essays/${slug}`;
-      toast(
-        `올렸습니다. 30초쯤 뒤 반영됩니다.\n<a href="https://notquitenowhere.github.io${base}" target="_blank" rel="noopener">사이트에서 보기 ↗</a>`,
-        'ok',
-        9000,
-      );
-    } else {
-      toast(`${res.step} 단계에서 막혔습니다:\n${escapeHtml(res.out.slice(0, 400))}`, 'bad', 12000);
-    }
-  } catch (err) {
-    toast(escapeHtml(err.message), 'bad', 8000);
+    const slug = $('slug').value.trim();
+    const view =
+      state.current.kind === 'notes'
+        ? '/notes'
+        : state.current.kind === 'pages'
+          ? `/${slug}`
+          : `/essays/${slug}`;
+    await publishAll(title, view);
   } finally {
     $('publish').disabled = false;
     markSaved('');
-    refreshStatus();
   }
 }
 
@@ -428,7 +626,7 @@ function boot() {
   });
 
   // 폼 입력은 전부 자동 저장 대상
-  ['title', 'subtitle', 'date', 'slug', 'tags', 'excerpt', 'source', 'sourceUrl'].forEach((id) =>
+  ['title', 'kicker', 'subtitle', 'date', 'slug', 'tags', 'excerpt', 'source', 'sourceUrl'].forEach((id) =>
     $(id).addEventListener('input', touch),
   );
   ['accent', 'featured', 'draft'].forEach((id) => $(id).addEventListener('change', touch));
@@ -439,6 +637,12 @@ function boot() {
     $('accent').value = '#a8321e';
     touch();
     toast('사이트 기본 강조색을 씁니다.');
+  });
+
+  $('site-save').addEventListener('click', () => saveSite({ quiet: false }));
+  $('site-publish').addEventListener('click', async () => {
+    await saveSite();
+    await publishAll('배너 문구 수정');
   });
 
   $('save').addEventListener('click', () => save());

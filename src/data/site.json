@@ -1,0 +1,70 @@
+{
+  "site": {
+    "title": "notquitenowhere",
+    "titleSplitAt": 8,
+    "titleLatin": "최아성",
+    "description": "읽고, 생각하고, 남겨두는 곳. 기술과 사람 사이에서 오래 붙잡고 있던 문장들.",
+    "author": "최아성",
+    "email": "ahseongchoi@gmail.com",
+    "since": 2026,
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/ahseongchoi"
+      },
+      {
+        "label": "Email",
+        "href": "mailto:ahseongchoi@gmail.com"
+      },
+      {
+        "label": "RSS",
+        "href": "/rss.xml"
+      }
+    ]
+  },
+  "nav": [
+    {
+      "label": "글",
+      "href": "/essays"
+    },
+    {
+      "label": "노트",
+      "href": "/notes"
+    },
+    {
+      "label": "연대기",
+      "href": "/archive"
+    },
+    {
+      "label": "소개",
+      "href": "/about"
+    }
+  ],
+  "banners": {
+    "home": {
+      "kicker": "",
+      "title": "느리게 읽고\n*오래* 씁니다.",
+      "lede": "읽고, 생각하고, 남겨두는 곳. 기술과 사람 사이에서 오래 붙잡고 있던 문장들."
+    },
+    "essays": {
+      "kicker": "Essays",
+      "title": "글",
+      "lede": ""
+    },
+    "notes": {
+      "kicker": "Notes",
+      "title": "노트",
+      "lede": ""
+    },
+    "archive": {
+      "kicker": "Archive",
+      "title": "연대기",
+      "lede": ""
+    },
+    "notFound": {
+      "kicker": "404",
+      "title": "여긴\n*비어* 있습니다.",
+      "lede": "주소가 바뀌었거나, 처음부터 없던 쪽입니다."
+    }
+  }
+}

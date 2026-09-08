@@ -2,7 +2,8 @@
 import Base from '../layouts/Base.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import EssayRow from '../components/EssayRow.astro';
-import { SITE } from '../consts';
+import Banner from '../components/Banner.astro';
+import { SITE, BANNERS } from '../consts';
 import { allEssays, allNotes } from '../lib/collections';
 import { readingMinutes, autoExcerpt } from '../lib/text';
 
@@ -14,13 +15,7 @@ const rest = essays.filter((e) => e.id !== featured?.id).slice(0, 5);
 ---
 
 <Base title={SITE.title} description={SITE.description}>
-  <section class="hero page">
-    <h1 class="hero__title">
-      느리게 읽고<br /><em>오래</em> 씁니다.
-    </h1>
-
-    <p class="hero__lede">{SITE.description}</p>
-  </section>
+  <Banner {...BANNERS.home} size="xl" />
 
   {
     featured && (

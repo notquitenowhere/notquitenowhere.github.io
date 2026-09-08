@@ -1,28 +1,19 @@
 ---
+import { getEntry, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import { SITE } from '../consts';
+import Banner from '../components/Banner.astro';
+
+const entry = await getEntry('pages', 'about');
+const { Content } = await render(entry!);
+const { kicker, title, lede } = entry!.data;
 ---
 
-<Base title="소개" description="이 사이트와, 쓰는 사람에 대하여.">
-  <section class="hero page">
-    <p class="label">About</p>
-    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">소개</h1>
-  </section>
+<Base title={title} description={lede}>
+  <Banner kicker={kicker} title={title} lede={lede} />
 
   <div class="essay-body page">
     <div class="prose">
-      <p>{SITE.author}입니다.</p>
-
-      <p>
-        기술과 사람 사이에서 벌어지는 일들에 관심이 많습니다. 도구가 우리를 어떻게 바꾸는지,
-        우리가 도구를 어떻게 잘못 쓰는지, 그 사이에서 잃어버리기 쉬운 것들에 대해 씁니다.
-      </p>
-
-      <p>
-        <a class="link" href={`mailto:${SITE.email}`}>{SITE.email}</a> ·
-        <a class="link" href="/rss.xml">RSS</a>
-      </p>
-
+      <Content />
       <div class="essay-end"><span>❦</span></div>
     </div>
   </div>

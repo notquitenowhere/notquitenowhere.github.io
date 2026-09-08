@@ -2,6 +2,8 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
+import Banner from '../../components/Banner.astro';
+import { BANNERS } from '../../consts';
 import { allNotes } from '../../lib/collections';
 
 const notes = await allNotes();
@@ -11,10 +13,7 @@ const rendered = await Promise.all(
 ---
 
 <Base title="노트" description="짧게 적어두는 것들 — 인용, 관찰, 아직 글이 되지 못한 생각.">
-  <section class="hero page">
-    <p class="label">Notes</p>
-    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">노트</h1>
-  </section>
+  <Banner {...BANNERS.notes} />
 
   <div class="page">
     {

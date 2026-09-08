@@ -287,3 +287,73 @@ button, input, textarea { font: inherit; color: inherit; }
 }
 .toastui-editor-contents blockquote p { color: inherit; }
 .toastui-editor-contents a { color: var(--accent); }
+
+/* ── 배너·사이트 정보 폼 ────────────────────────────────────────────── */
+
+.form-title {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  margin: 0 0 18px;
+}
+
+.form { display: grid; gap: 14px; max-width: 620px; }
+.form label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+.form label > span { color: var(--ink-3); }
+.form input, .form textarea {
+  border: 1px solid var(--rule);
+  background: var(--paper-rise);
+  border-radius: 5px;
+  padding: 7px 10px;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+}
+.form input:focus, .form textarea:focus { border-color: var(--accent); }
+.form textarea { font-family: var(--serif); line-height: 1.7; }
+
+/* 큰 제목이 사이트에서 어떻게 보이는지 그대로 */
+.preview {
+  margin-top: 26px;
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
+  max-width: 620px;
+}
+.preview__inner { background: var(--paper); padding: 22px 20px 26px; border-radius: 6px; }
+.preview__kicker {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3); margin: 0 0 12px;
+}
+.preview__kicker:empty { display: none; }
+.preview__title {
+  font-family: var(--display);
+  font-size: 40px;
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  margin: 0;
+  word-break: keep-all;
+}
+.preview__title em { font-style: normal; color: var(--accent); }
+.preview__lede {
+  font-family: var(--serif);
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 14px 0 0;
+  word-break: keep-all;
+}
+.preview__lede:empty { display: none; }
+
+.kicker-input {
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 0 0 8px;
+  width: 100%;
+  outline: none;
+}

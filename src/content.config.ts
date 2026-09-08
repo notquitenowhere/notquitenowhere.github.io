@@ -56,4 +56,14 @@ const notes = defineCollection({
   }),
 });
 
-export const collections = { essays, notes };
+/** 소개처럼 글 목록에 끼지 않는 고정 쪽. 배너와 본문을 함께 담는다. */
+const pages = defineCollection({
+  loader: glob({ base: './src/content/pages', pattern: '**/*.{md,mdx}' }),
+  schema: z.object({
+    kicker: optionalText,
+    title: z.string(),
+    lede: optionalText,
+  }),
+});
+
+export const collections = { essays, notes, pages };

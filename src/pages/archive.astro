@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import Banner from '../components/Banner.astro';
+import { BANNERS } from '../consts';
 import { allEssays, allNotes } from '../lib/collections';
 
 const essays = await allEssays();
@@ -27,10 +29,7 @@ const years = [...new Set(items.map((i) => i.date.getFullYear()))].sort((a, b) =
 ---
 
 <Base title="연대기" description="쓴 것 전부를 시간순으로.">
-  <section class="hero page">
-    <p class="label">Archive</p>
-    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">연대기</h1>
-  </section>
+  <Banner {...BANNERS.archive} />
 
   <div class="page" style="margin-top:var(--space-m)">
     {

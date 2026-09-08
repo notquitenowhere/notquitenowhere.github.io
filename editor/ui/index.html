@@ -32,6 +32,7 @@
         <div class="tabs" role="tablist">
           <button class="tab is-on" data-kind="essays" role="tab">글</button>
           <button class="tab" data-kind="notes" role="tab">노트</button>
+          <button class="tab" data-kind="pages" role="tab">페이지</button>
         </div>
 
         <button class="btn btn--new" id="new-post">＋ 새 글 쓰기</button>
@@ -47,6 +48,7 @@
       <!-- 오른쪽: 편집 -->
       <main class="pane" id="pane" hidden>
         <div class="pane__scroll">
+          <input class="kicker-input" id="kicker" placeholder="작은 제목" autocomplete="off" hidden />
           <input class="title-input" id="title" placeholder="제목" autocomplete="off" />
           <input class="sub-input" id="subtitle" placeholder="부제" autocomplete="off" />
 
@@ -118,6 +120,29 @@
             <button class="btn btn--ghost" id="delete">삭제</button>
             <button class="btn" id="save">저장</button>
             <button class="btn btn--go" id="publish">발행하기</button>
+          </span>
+        </footer>
+      </main>
+
+      <!-- 배너·사이트 정보 폼 -->
+      <main class="pane" id="site-pane" hidden>
+        <div class="pane__scroll">
+          <h2 class="form-title" id="site-title"></h2>
+          <div class="form" id="site-form"></div>
+          <div class="preview" id="site-preview" hidden>
+            <div class="preview__inner">
+              <p class="preview__kicker"></p>
+              <h1 class="preview__title"></h1>
+              <p class="preview__lede"></p>
+            </div>
+          </div>
+        </div>
+
+        <footer class="bar">
+          <span class="saved dim" id="site-saved"></span>
+          <span class="bar__right">
+            <button class="btn" id="site-save">저장</button>
+            <button class="btn btn--go" id="site-publish">발행하기</button>
           </span>
         </footer>
       </main>

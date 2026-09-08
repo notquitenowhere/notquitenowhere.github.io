@@ -109,14 +109,30 @@ npm run new -- "짧은 생각" --note  # src/content/notes/짧은-생각.md
 
 `<Figure>` 가 필요한 경우는 캡션이 아니라 **폭을 넓힐 때**(`size="wide"`, `size="bleed"`)입니다.
 
-## 3. 사이트 정보 고치기
+## 3. 배너와 사이트 정보 고치기
 
-거의 모든 텍스트가 [`src/consts.ts`](src/consts.ts) 한 곳에 모여 있습니다 — 이름, 로마자 표기,
-소개 문구, 소셜 링크, 메뉴.
+`npm run write` 의 **「페이지」 탭**에서 전부 고칠 수 있습니다.
 
-홈 첫 화면의 큰 문장("느리게 읽고 / 오래 씁니다")은
-[`src/pages/index.astro`](src/pages/index.astro)에, 소개 글은
-[`src/pages/about.astro`](src/pages/about.astro)에 있습니다.
+| 항목 | 무엇 |
+|---|---|
+| 사이트 이름·소개 | 이름, 이름 옆 작은 글씨, 한 줄 소개, 저자, 메일, 바깥 링크 |
+| 홈 배너 | 첫 화면의 큰 문장과 그 아래 한 줄 |
+| 글·노트·연대기 배너 | 각 목록 쪽 머리말 |
+| 없는 쪽 (404) | 404 화면 |
+| 소개 | 배너 + 본문 전체 |
+
+**큰 제목에 쓰는 문법은 둘뿐입니다.**
+
+```
+느리게 읽고
+*오래* 씁니다.
+```
+
+줄을 바꾸면 그대로 줄이 바뀌고, `*별표*` 로 감싼 부분이 강조색이 됩니다. 폼 아래에 실제
+조판된 모습이 그대로 보입니다.
+
+파일로 직접 고쳐도 됩니다 — 배너·사이트 정보는 [`src/data/site.json`](src/data/site.json),
+소개 쪽 본문은 [`src/content/pages/about.md`](src/content/pages/about.md).
 
 ## 4. 디자인 손보기
 
@@ -178,11 +194,13 @@ npm run new -- "짧은 생각" --note  # src/content/notes/짧은-생각.md
 
 ```
 src/
-├─ consts.ts              사이트 이름·소개·링크·메뉴
+├─ consts.ts              site.json 을 읽어 넘겨주는 얇은 껍데기
+├─ data/site.json         이름·소개·링크·메뉴·배너 문구 전부
 ├─ content.config.ts      프런트매터 스키마
 ├─ content/
 │  ├─ essays/             긴 글 (.md / .mdx)
-│  └─ notes/              짧은 글 (.md)
+│  ├─ notes/              짧은 글 (.md)
+│  └─ pages/              소개처럼 고정된 쪽
 ├─ components/            머리·꼬리·목록 행·조판 요소
 ├─ layouts/               Base(공통) · Essay(글)
 ├─ lib/                   읽기 시간·발췌·정렬

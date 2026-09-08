@@ -1,0 +1,44 @@
+---
+import type { Banner } from '../consts';
+
+interface Props extends Banner {
+  /** 큰 제목의 크기. 홈만 가장 크게 씁니다. */
+  size?: 'xl' | 'lg';
+  /** 아래 테두리를 그릴지 */
+  rule?: boolean;
+}
+
+const { kicker, title, lede, size = 'lg', rule = true } = Astro.props;
+
+const titleStyle =
+  [kicker ? 'margin-top:var(--space-s)' : '', size === 'lg' ? 'font-size:var(--step-4)' : '']
+    .filter(Boolean)
+    .join(';') || undefined;
+
+/**
+ * 배너 문구에 쓰는 아주 작은 문법.
+ *   *강조*   → 강조색으로
+ *   줄바꿈   → 그대로 줄바꿈
+ * 그 밖의 모든 글자는 escape 되므로 태그를 넣을 수는 없습니다.
+ */
+function richLine(text = ''): string {
+  return text
+    .replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]!)
+    .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+    .replace(/\r?\n/g, '<br />');
+}
+---
+
+<section class="hero page" style={rule ? undefined : 'border-bottom:0'}>
+  {kicker && <p class="label">{kicker}</p>}
+
+  {
+    title && (
+      <h1 class="hero__title" style={titleStyle} set:html={richLine(title)} />
+    )
+  }
+
+  {lede && <p class="hero__lede" set:html={richLine(lede)} />}
+
+  <slot />
+</section>

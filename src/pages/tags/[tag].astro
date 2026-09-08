@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import EssayRow from '../../components/EssayRow.astro';
+import Banner from '../../components/Banner.astro';
 import { readingMinutes, autoExcerpt } from '../../lib/text';
 
 export async function getStaticPaths() {
@@ -18,10 +19,7 @@ const { tag, essays } = Astro.props;
 ---
 
 <Base title={tag} description={`‘${tag}’ 주제로 쓴 글 ${essays.length}편.`}>
-  <section class="hero page">
-    <p class="label">Tag</p>
-    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">{tag}</h1>
-  </section>
+  <Banner kicker="Tag" title={tag} />
 
   <div class="page">
     <div class="index" style="margin-top:var(--space-m)">

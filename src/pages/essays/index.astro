@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
 import EssayRow from '../../components/EssayRow.astro';
+import Banner from '../../components/Banner.astro';
+import { BANNERS } from '../../consts';
 import { allEssays, tagCounts } from '../../lib/collections';
 import { readingMinutes, autoExcerpt } from '../../lib/text';
 
@@ -9,10 +11,7 @@ const tags = await tagCounts();
 ---
 
 <Base title="글" description="지금까지 쓴 에세이 전부.">
-  <section class="hero page">
-    <p class="label">Essays</p>
-    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">글</h1>
-
+  <Banner {...BANNERS.essays}>
     {
       tags.length > 0 && (
         <div class="index__tags" style="margin-top:var(--space-m)">
@@ -24,7 +23,7 @@ const tags = await tagCounts();
         </div>
       )
     }
-  </section>
+  </Banner>
 
   <div class="page">
     <div class="index" style="margin-top:var(--space-m)">
