@@ -77,6 +77,10 @@
       "paper": "#101317",
       "ink": "#e6e8ea",
       "accent": "#7aa5d2"
+    },
+    "sky": {
+      "on": true,
+      "strength": 0.6
     }
   }
 }

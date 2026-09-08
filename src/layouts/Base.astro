@@ -3,6 +3,7 @@ import { ClientRouter } from 'astro:transitions';
 import BaseHead from '../components/BaseHead.astro';
 import Masthead from '../components/Masthead.astro';
 import Colophon from '../components/Colophon.astro';
+import Sky from '../components/Sky.astro';
 
 interface Props {
   title: string;
@@ -27,6 +28,7 @@ const { progress = false, ...head } = Astro.props;
 
   <body>
     <a class="skip" href="#main">본문으로 건너뛰기</a>
+    <Sky />
     {progress && <div class="progress" data-progress aria-hidden="true"></div>}
 
     <div class="site">

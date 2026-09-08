@@ -1,0 +1,126 @@
+---
+import { THEME } from '../consts';
+
+/**
+ * 배경 하늘 — 듀오톤 구름 연무.
+ *
+ * 사진이 아니라 브라우저가 그리는 프랙탈 노이즈입니다. 그래서
+ *   · 파일이 없고 (0바이트)
+ *   · 「페이지 → 색」에서 고른 종이·강조색을 그대로 따라가며
+ *   · 밝을 때와 어두울 때가 저절로 갈립니다.
+ *
+ * 구름은 위쪽에 몰리고 아래로 갈수록 걷힙니다. 글을 읽는 자리를 비워두려는 것.
+ * 세기(strength)를 올리면 레퍼런스처럼 짙은 하늘이 되고, 내리면 종이에 가까워집니다.
+ */
+const sky = (THEME as { sky?: { on?: boolean; strength?: number } }).sky;
+const on = sky?.on !== false;
+const strength = typeof sky?.strength === 'number' ? sky.strength : 0.55;
+---
+
+{
+  on && (
+    <div class="sky" aria-hidden="true" style={`--sky: ${strength}`}>
+      <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          {/* 큰 덩어리 구름 */}
+          <filter id="haze-a" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.0021" numOctaves="5" seed="9" stitchTiles="stitch" />
+            <feColorMatrix
+              type="matrix"
+              values="0 0 0 0 1
+                      0 0 0 0 1
+                      0 0 0 0 1
+                      1.9 0 0 0 -0.52"
+            />
+            <feGaussianBlur stdDeviation="16" />
+          </filter>
+
+          {/* 잘게 흩어진 결 */}
+          <filter id="haze-b" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.0058" numOctaves="4" seed="23" stitchTiles="stitch" />
+            <feColorMatrix
+              type="matrix"
+              values="0 0 0 0 1
+                      0 0 0 0 1
+                      0 0 0 0 1
+                      1.5 0 0 0 -0.46"
+            />
+            <feGaussianBlur stdDeviation="7" />
+          </filter>
+
+          {/* 아래로 갈수록 구름이 걷힌다 */}
+          <linearGradient id="haze-fade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#000" stop-opacity="0" />
+            <stop offset="40%" stop-color="#000" stop-opacity="0.12" />
+            <stop offset="72%" stop-color="#000" stop-opacity="0.72" />
+            <stop offset="100%" stop-color="#000" stop-opacity="0.95" />
+          </linearGradient>
+
+          <mask id="haze-mask-a" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000">
+            <rect width="1600" height="1000" fill="#fff" filter="url(#haze-a)" />
+            <rect width="1600" height="1000" fill="url(#haze-fade)" />
+          </mask>
+
+          <mask id="haze-mask-b" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000">
+            <rect width="1600" height="1000" fill="#fff" filter="url(#haze-b)" />
+            <rect width="1600" height="1000" fill="url(#haze-fade)" />
+          </mask>
+
+          {/* 위쪽 하늘의 옅은 물듦 */}
+          <linearGradient id="haze-air" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.16" />
+            <stop offset="52%" stop-color="var(--accent)" stop-opacity="0.03" />
+            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+
+        <rect width="1600" height="1000" fill="url(#haze-air)" />
+
+        <g class="sky__a">
+          <rect width="1600" height="1000" fill="var(--accent)" mask="url(#haze-mask-a)" opacity="0.5" />
+        </g>
+        <g class="sky__b">
+          <rect width="1600" height="1000" fill="var(--accent)" mask="url(#haze-mask-b)" opacity="0.26" />
+        </g>
+      </svg>
+    </div>
+  )
+}
+
+<style is:global>
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    /* 세기를 0~1 로 받아 실제 농도로 옮긴다. 1이어도 글은 읽힌다. */
+    opacity: calc(var(--sky, 0.55) * 0.85);
+    transition: opacity 600ms var(--ease);
+  }
+  .sky svg { width: 100%; height: 100%; display: block; }
+
+  /* 어두울 때는 밤하늘이 조금 더 짙게 물든다 */
+  :root[data-theme='dark'] .sky { opacity: calc(var(--sky, 0.55) * 1.15); }
+
+  /* 아주 느리게 흐른다. 두 겹이 서로 다른 속도로 움직여 깊이가 생긴다. */
+  .sky__a { animation: sky-drift-a 300s ease-in-out infinite alternate; }
+  .sky__b { animation: sky-drift-b 190s ease-in-out infinite alternate; }
+
+  @keyframes sky-drift-a {
+    from { transform: translate3d(-2%, 0, 0) scale(1.06); }
+    to { transform: translate3d(2%, -1%, 0) scale(1.06); }
+  }
+  @keyframes sky-drift-b {
+    from { transform: translate3d(2.5%, 0.5%, 0) scale(1.08); }
+    to { transform: translate3d(-2.5%, -0.5%, 0) scale(1.08); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sky__a, .sky__b { animation: none; }
+  }
+
+  /* 본문은 하늘 위에 */
+  .site { position: relative; z-index: 1; }
+
+  @media print { .sky { display: none !important; } }
+</style>

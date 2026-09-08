@@ -292,7 +292,8 @@ function openTheme() {
     <div class="theme-grid">
       ${group('light', '밝을 때')}
       ${group('dark', '어두울 때')}
-    </div>`;
+    </div>
+    ${skyFormHtml()}`;
 
   $('site-form')
     .querySelectorAll('input[type="color"], .theme-hex')
@@ -313,9 +314,42 @@ function openTheme() {
       }),
     );
 
+  bindSkyForm();
   renderThemePreview();
   markSiteSaved('열림');
   document.querySelectorAll('#list li').forEach((li) => li.classList.toggle('is-on', li.dataset.site === 'theme'));
+}
+
+/** 「색」 화면 아래에 붙는 하늘 설정. */
+function skyFormHtml() {
+  const s = state.site.theme.sky ?? { on: true, strength: 0.55 };
+  return `
+    <div class="sky-box">
+      <label class="check sky-on">
+        <input type="checkbox" id="sky-on" ${s.on !== false ? 'checked' : ''} />
+        <span>배경에 하늘</span>
+      </label>
+      <label class="sky-strength">
+        <span>세기 <b id="sky-num">${Math.round((s.strength ?? 0.55) * 100)}</b></span>
+        <input type="range" id="sky-str" min="0" max="100" step="5"
+               value="${Math.round((s.strength ?? 0.55) * 100)}" />
+      </label>
+    </div>`;
+}
+
+function bindSkyForm() {
+  const on = $('sky-on');
+  const str = $('sky-str');
+  if (!on || !str) return;
+
+  const sync = () => {
+    $('sky-num').textContent = str.value;
+    str.disabled = !on.checked;
+    touchSite();
+  };
+  on.addEventListener('change', sync);
+  str.addEventListener('input', sync);
+  str.disabled = !on.checked;
 }
 
 function onThemeInput(e) {
@@ -478,6 +512,10 @@ async function saveSite({ quiet = true } = {}) {
         state.site.theme[mode][f.id] = document.getElementById(`tf-${mode}-${f.id}`).value;
       }
     }
+    state.site.theme.sky = {
+      on: $('sky-on').checked,
+      strength: Number($('sky-str').value) / 100,
+    };
   } else if (state.siteKey === 'site') {
     for (const f of SITE_FIELDS) {
       const raw = g(f.id).trim();

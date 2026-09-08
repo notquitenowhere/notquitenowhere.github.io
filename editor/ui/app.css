@@ -444,3 +444,21 @@ button, input, textarea { font: inherit; color: inherit; }
 .link-row input:focus { border-color: var(--accent); }
 .lr-del { padding: 2px 6px; font-size: 16px; line-height: 1; }
 #link-add { justify-self: start; margin-top: 2px; }
+
+/* 하늘 설정 */
+.sky-box {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  flex-wrap: wrap;
+  max-width: 640px;
+}
+.sky-on { font-size: 13px; }
+.sky-strength { display: flex !important; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
+.sky-strength > span { font-size: 12px; color: var(--ink-3); }
+.sky-strength b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.sky-strength input[type='range'] { accent-color: var(--accent); width: 100%; }
+.sky-strength input:disabled { opacity: .4; }
