@@ -1,0 +1,30 @@
+---
+import { render } from 'astro:content';
+import Essay from '../../layouts/Essay.astro';
+import Sidenote from '../../components/Sidenote.astro';
+import Pullquote from '../../components/Pullquote.astro';
+import Figure from '../../components/Figure.astro';
+import { readingMinutes } from '../../lib/text';
+
+export async function getStaticPaths() {
+  const { allEssays } = await import('../../lib/collections');
+  const essays = await allEssays();
+
+  return essays.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      // 목록은 최신순이라, 뒤에 오는 항목이 더 오래된 글이다.
+      prev: essays[i + 1],
+      next: essays[i - 1],
+    },
+  }));
+}
+
+const { entry, prev, next } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Essay entry={entry} readingTime={readingMinutes(entry.body)} prev={prev} next={next}>
+  <Content components={{ Sidenote, Pullquote, Figure }} />
+</Essay>

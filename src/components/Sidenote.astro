@@ -1,0 +1,15 @@
+---
+/**
+ * 여백주석. 화면이 넓으면 본문 오른쪽 여백에, 좁으면 본문 흐름 안에 놓인다.
+ * 사용: <Sidenote n="1">덧붙이는 말</Sidenote>
+ */
+interface Props {
+  n?: string | number;
+}
+const { n } = Astro.props;
+---
+
+<aside class="sidenote">
+  {n && <span class="sidenote__num">{n}</span>}
+  <slot />
+</aside>

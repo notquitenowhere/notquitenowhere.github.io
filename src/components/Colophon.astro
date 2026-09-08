@@ -1,0 +1,53 @@
+---
+import { SITE, NAV } from '../consts';
+
+const year = new Date().getFullYear();
+const span = year > SITE.since ? `${SITE.since}–${year}` : `${SITE.since}`;
+---
+
+<footer class="colophon">
+  <div class="colophon__grid">
+    <div>
+      <p class="label">이곳에 대하여</p>
+      <p class="colophon__note">
+        {SITE.description}
+      </p>
+    </div>
+
+    <div>
+      <p class="label">차례</p>
+      <ul>
+        {NAV.map((item) => <li><a href={item.href}>{item.label} <span style="opacity:.55">{item.sub}</span></a></li>)}
+      </ul>
+    </div>
+
+    <div>
+      <p class="label">바깥으로</p>
+      <ul>
+        {
+          SITE.links.map((l) => (
+            <li>
+              <a href={l.href} rel={l.href.startsWith('http') ? 'me noopener' : undefined}>
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <p class="label">판권</p>
+      <p class="colophon__note">
+        본문 활자는 <span style="font-family:var(--font-serif)">고운바탕</span>, 표제는
+        <span style="font-family:var(--font-display)">함렛</span>.<br />
+        글은 <a class="link" href="https://creativecommons.org/licenses/by/4.0/deed.ko" rel="noopener">CC BY 4.0</a>.
+      </p>
+    </div>
+  </div>
+
+  <div class="colophon__bottom">
+    <span class="label">© {span} {SITE.author}</span>
+    <span class="label">Seoul · 서울</span>
+  </div>
+</footer>

@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import EssayRow from '../../components/EssayRow.astro';
+import { readingMinutes, autoExcerpt } from '../../lib/text';
+
+export async function getStaticPaths() {
+  const { allEssays } = await import('../../lib/collections');
+  const essays = await allEssays();
+  const tags = [...new Set(essays.flatMap((e) => e.data.tags))];
+
+  return tags.map((tag) => ({
+    params: { tag },
+    props: { tag, essays: essays.filter((e) => e.data.tags.includes(tag)) },
+  }));
+}
+
+const { tag, essays } = Astro.props;
+---
+
+<Base title={tag} description={`‘${tag}’ 주제로 쓴 글 ${essays.length}편.`}>
+  <section class="hero page">
+    <p class="label">Tag</p>
+    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">{tag}</h1>
+    <p class="hero__lede">이 주제로 {essays.length}편을 썼습니다.</p>
+  </section>
+
+  <div class="page">
+    <div class="index" style="margin-top:var(--space-m)">
+      {
+        essays.map((e, i) => (
+          <EssayRow
+            href={`/essays/${e.id}`}
+            index={essays.length - i}
+            title={e.data.title}
+            excerpt={e.data.excerpt ?? autoExcerpt(e.body)}
+            date={e.data.date}
+            tags={e.data.tags}
+            readingTime={readingMinutes(e.body)}
+          />
+        ))
+      }
+    </div>
+  </div>
+</Base>

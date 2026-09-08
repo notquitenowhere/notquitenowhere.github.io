@@ -1,0 +1,22 @@
+---
+/**
+ * 그림. size로 폭을 정한다.
+ *  - 'text'  본문 폭
+ *  - 'wide'  여백주석 열까지 넓힘
+ *  - 'bleed' 화면 가득
+ */
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  size?: 'text' | 'wide' | 'bleed';
+  ratio?: string;
+}
+const { src, alt, caption, size = 'text', ratio } = Astro.props;
+const cls = size === 'text' ? 'figure' : `figure figure--${size}`;
+---
+
+<figure class={cls}>
+  <img src={src} alt={alt} loading="lazy" decoding="async" style={ratio ? `aspect-ratio:${ratio};object-fit:cover` : undefined} />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

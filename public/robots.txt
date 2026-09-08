@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ahseongchoi.github.io/sitemap-index.xml

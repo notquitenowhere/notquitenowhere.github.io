@@ -1,0 +1,16 @@
+---
+/**
+ * 본문 중간에 크게 거는 인용.
+ * 사용: <Pullquote cite="누구의 말">문장</Pullquote>
+ */
+interface Props {
+  cite?: string;
+  wide?: boolean;
+}
+const { cite, wide = false } = Astro.props;
+---
+
+<figure class={`pullquote${wide ? ' pullquote--wide' : ''}`}>
+  <p><slot /></p>
+  {cite && <cite>{cite}</cite>}
+</figure>

@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../consts';
+---
+
+<Base title="소개" description="이 사이트와, 쓰는 사람에 대하여.">
+  <section class="hero page">
+    <p class="label">About</p>
+    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">소개</h1>
+  </section>
+
+  <div class="essay-body page">
+    <div class="prose">
+      <p>
+        안녕하세요. {SITE.author}입니다. 여기는 제가 오래 붙잡고 있던 생각을 문장으로 바꿔 두는
+        곳입니다. 트래픽을 노리지 않고, 자주 올리지도 않습니다. 대신 한 편을 쓰면 오래 남을 만큼
+        고칩니다.
+      </p>
+
+      <p>
+        읽는 사람에게 무언가를 팔 생각이 없습니다. 광고도, 추적 스크립트도, 뉴스레터 팝업도 없습니다.
+        이 사이트가 하는 일은 글을 잘 보여주는 것 하나뿐입니다.
+      </p>
+
+      <h2>쓰는 것들</h2>
+      <p>
+        기술과 사람 사이에서 벌어지는 일들에 관심이 많습니다. 도구가 우리를 어떻게 바꾸는지, 우리가
+        도구를 어떻게 잘못 쓰는지, 그리고 그 사이에서 잃어버리기 쉬운 것들에 대해 씁니다.
+      </p>
+      <ul>
+        <li><strong>글</strong> — 몇 주씩 붙잡고 고친 긴 글. 한 편이 하나의 완결된 생각입니다.</li>
+        <li><strong>노트</strong> — 인용, 관찰, 아직 글이 되지 못한 조각들.</li>
+      </ul>
+
+      <h2>이 사이트에 대하여</h2>
+      <p>
+        정적 사이트로 만들었습니다. 서버도, 데이터베이스도, 댓글도 없습니다. 본문 활자는 고운바탕,
+        표제는 함렛을 씁니다. 한글 본문이 잘 읽히도록 줄바꿈과 행간을 손으로 맞췄습니다.
+      </p>
+      <p>
+        글은 <a class="link" href="https://creativecommons.org/licenses/by/4.0/deed.ko" rel="noopener">
+        CC BY 4.0</a>으로 열려 있습니다. 출처만 밝히면 마음껏 가져다 쓰세요.
+      </p>
+
+      <h2>연락</h2>
+      <p>
+        고쳐야 할 곳을 발견하셨거나 하고 싶은 말이 있으면
+        <a class="link" href={`mailto:${SITE.email}`}>{SITE.email}</a>으로 보내주세요. 새 글은
+        <a class="link" href="/rss.xml">RSS</a>로 받아보실 수 있습니다.
+      </p>
+
+      <div class="essay-end"><span>❦</span></div>
+    </div>
+  </div>
+</Base>

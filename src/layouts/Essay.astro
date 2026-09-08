@@ -1,0 +1,84 @@
+---
+import Base from './Base.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Figure from '../components/Figure.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'essays'>;
+  readingTime?: number;
+  prev?: CollectionEntry<'essays'>;
+  next?: CollectionEntry<'essays'>;
+}
+
+const { entry, readingTime, prev, next } = Astro.props;
+const { title, subtitle, excerpt, date, updated, tags, accent, cover, coverAlt } = entry.data;
+---
+
+<Base
+  title={title}
+  description={excerpt ?? subtitle}
+  type="article"
+  publishedTime={date}
+  accent={accent}
+  image={cover}
+  progress
+>
+  <article>
+    <header class="essay-head page">
+      <div class="essay-head__meta">
+        <FormattedDate date={date} />
+        <span class="label">{readingTime ?? 1}분 남짓</span>
+        {tags.map((t) => <a class="tag" href={`/tags/${encodeURIComponent(t)}`}>{t}</a>)}
+      </div>
+
+      <div class="essay-rule"></div>
+
+      <h1 style="margin-top:var(--space-s)">{title}</h1>
+      {subtitle && <p class="essay-head__sub">{subtitle}</p>}
+    </header>
+
+    {
+      cover && (
+        <div class="page">
+          <Figure src={cover} alt={coverAlt ?? title} size="wide" ratio="16/9" />
+        </div>
+      )
+    }
+
+    <div class="essay-body page">
+      <div class="prose">
+        <slot />
+
+        <div class="essay-end"><span>❦</span></div>
+
+        {
+          updated && (
+            <p class="label" style="margin-top:var(--space-s)">
+              마지막으로 고친 날 · <FormattedDate date={updated} style="short" className="label" />
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </article>
+
+  <nav class="pager page" aria-label="다른 글">
+    {
+      prev && (
+        <a class="pager__cell" href={`/essays/${prev.id}`}>
+          <span class="label">이전 글</span>
+          <span class="pager__title" style="display:block">{prev.data.title}</span>
+        </a>
+      )
+    }
+    {
+      next && (
+        <a class="pager__cell" href={`/essays/${next.id}`}>
+          <span class="label">다음 글</span>
+          <span class="pager__title" style="display:block">{next.data.title}</span>
+        </a>
+      )
+    }
+  </nav>
+</Base>

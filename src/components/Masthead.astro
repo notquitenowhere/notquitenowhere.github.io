@@ -1,0 +1,61 @@
+---
+import { SITE, NAV } from '../consts';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
+---
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="wordmark" href="/" aria-label={`${SITE.title} 홈`}>
+      <span class="wordmark__ko">{SITE.title}</span>
+      <span class="wordmark__la">{SITE.titleLatin}</span>
+    </a>
+
+    <nav class="nav" aria-label="주 메뉴">
+      {
+        NAV.map((item) => (
+          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="밝기 전환">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2"></circle>
+        <path d="M12 2v2.4M12 19.6V22M22 12h-2.4M4.4 12H2M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7M19.1 19.1l-1.7-1.7M6.6 6.6 4.9 4.9"></path>
+      </svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+        <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1Z"></path>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<script>
+  const KEY = 'theme';
+
+  function apply(theme: string) {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem(KEY, theme);
+    } catch {
+      /* 사생활 보호 모드 등에서는 그냥 넘어간다 */
+    }
+  }
+
+  function bind() {
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', () => {
+        apply(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+      });
+    });
+  }
+
+  bind();
+  document.addEventListener('astro:page-load', bind);
+</script>

@@ -1,0 +1,63 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { allNotes } from '../../lib/collections';
+
+const notes = await allNotes();
+const rendered = await Promise.all(
+  notes.map(async (n) => ({ note: n, Content: (await render(n)).Content })),
+);
+---
+
+<Base title="노트" description="짧게 적어두는 것들 — 인용, 관찰, 아직 글이 되지 못한 생각.">
+  <section class="hero page">
+    <p class="label">Notes</p>
+    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">노트</h1>
+    <p class="hero__lede">
+      아직 에세이가 되지 못한 것들. 인용 한 줄, 관찰 한 조각, 나중에 다시 볼 메모.
+    </p>
+  </section>
+
+  <div class="page">
+    {
+      rendered.map(({ note, Content }) => (
+        <article class="note-card reveal" id={note.id}>
+          <div class="feature__meta">
+            <FormattedDate date={note.data.date} style="short" />
+            {note.data.tags.map((t) => (
+              <a class="tag" href={`/tags/${encodeURIComponent(t)}`}>
+                {t}
+              </a>
+            ))}
+          </div>
+
+          <h3>{note.data.title}</h3>
+
+          <div class="note-card__body prose" style="max-width:var(--w-text);margin-inline:0">
+            <Content />
+          </div>
+
+          {note.data.source && (
+            <p class="label">
+              {'출처 · '}
+              {note.data.sourceUrl ? (
+                <a class="link" href={note.data.sourceUrl} rel="noopener">
+                  {note.data.source}
+                </a>
+              ) : (
+                note.data.source
+              )}
+            </p>
+          )}
+        </article>
+      ))
+    }
+
+    {
+      notes.length === 0 && (
+        <p style="padding-block:var(--space-l);color:var(--ink-3)">아직 노트가 없습니다.</p>
+      )
+    }
+  </div>
+</Base>

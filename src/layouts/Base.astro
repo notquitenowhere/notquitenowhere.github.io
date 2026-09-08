@@ -1,0 +1,96 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import BaseHead from '../components/BaseHead.astro';
+import Masthead from '../components/Masthead.astro';
+import Colophon from '../components/Colophon.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedTime?: Date;
+  accent?: string;
+  /** 글 페이지에서만 읽기 진행 막대를 띄운다 */
+  progress?: boolean;
+}
+
+const { progress = false, ...head } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <BaseHead {...head} />
+    <ClientRouter />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">본문으로 건너뛰기</a>
+    {progress && <div class="progress" data-progress aria-hidden="true"></div>}
+
+    <div class="site">
+      <Masthead />
+      <main id="main">
+        <slot />
+      </main>
+      <Colophon />
+    </div>
+
+    <script>
+      // 스크롤에 따라 나타나는 요소들
+      function reveal() {
+        const items = document.querySelectorAll<HTMLElement>('.reveal:not(.is-in)');
+        if (!items.length) return;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          items.forEach((el) => el.classList.add('is-in'));
+          return;
+        }
+
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                e.target.classList.add('is-in');
+                io.unobserve(e.target);
+              }
+            });
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.06 },
+        );
+        items.forEach((el) => io.observe(el));
+      }
+
+      // 읽기 진행 막대
+      function progressBar() {
+        const bar = document.querySelector<HTMLElement>('[data-progress]');
+        if (!bar) return;
+        const onScroll = () => {
+          const h = document.documentElement.scrollHeight - window.innerHeight;
+          bar.style.setProperty('--p', String(h > 0 ? Math.min(1, window.scrollY / h) : 0));
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+      }
+
+      // 스크롤바 폭을 CSS 에 알려준다 (화면 가득 차는 그림의 가로 스크롤 방지)
+      function scrollbarWidth() {
+        const w = window.innerWidth - document.documentElement.clientWidth;
+        document.documentElement.style.setProperty('--sbw', `${Math.max(0, w)}px`);
+      }
+
+      function init() {
+        reveal();
+        progressBar();
+        scrollbarWidth();
+      }
+
+      window.addEventListener('resize', scrollbarWidth);
+
+      init();
+      document.addEventListener('astro:page-load', init);
+    </script>
+  </body>
+</html>

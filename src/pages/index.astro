@@ -1,0 +1,136 @@
+---
+import Base from '../layouts/Base.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import EssayRow from '../components/EssayRow.astro';
+import { SITE } from '../consts';
+import { allEssays, allNotes } from '../lib/collections';
+import { readingMinutes, autoExcerpt } from '../lib/text';
+
+const essays = await allEssays();
+const notes = (await allNotes()).slice(0, 3);
+
+const featured = essays.find((e) => e.data.featured) ?? essays[0];
+const rest = essays.filter((e) => e.id !== featured?.id).slice(0, 5);
+const lastUpdated = essays[0]?.data.date;
+---
+
+<Base title={SITE.title} description={SITE.description}>
+  <section class="hero page">
+    <p class="label">에세이 · 노트 · 오래 붙잡은 생각</p>
+
+    <h1 class="hero__title" style="margin-top:var(--space-s)">
+      느리게 읽고<br /><em>오래</em> 씁니다.
+    </h1>
+
+    <p class="hero__lede">{SITE.description}</p>
+
+    <p class="label" style="margin-top:var(--space-m)">
+      글 {String(essays.length).padStart(2, '0')}편
+      {
+        lastUpdated && (
+          <>
+            {' · 마지막 갱신 '}
+            <FormattedDate date={lastUpdated} style="short" className="label" />
+          </>
+        )
+      }
+    </p>
+  </section>
+
+  {
+    featured && (
+      <a class="feature page" href={`/essays/${featured.id}`}>
+        <div class="feature__grid">
+          <div>
+            <div class="feature__meta">
+              <span class="label" style="color:var(--accent)">이번의 글</span>
+              <FormattedDate date={featured.data.date} />
+              <span class="label">{readingMinutes(featured.body)}분 남짓</span>
+            </div>
+
+            <h2 class="feature__title" style="margin-top:var(--space-s)">
+              {featured.data.title}
+            </h2>
+            {featured.data.subtitle && <p class="feature__sub">{featured.data.subtitle}</p>}
+          </div>
+
+          {featured.data.cover ? (
+            <div class="feature__cover">
+              <img
+                src={featured.data.cover}
+                alt={featured.data.coverAlt ?? featured.data.title}
+                loading="eager"
+              />
+            </div>
+          ) : (
+            <div>
+              <p style="color:var(--ink-2);line-height:1.9;border-top:var(--hair);padding-top:var(--space-s)">
+                {featured.data.excerpt ?? autoExcerpt(featured.body, 150)}
+              </p>
+              <span class="more" style="margin-top:var(--space-s)">
+                계속 읽기 →
+              </span>
+            </div>
+          )}
+        </div>
+      </a>
+    )
+  }
+
+  {
+    rest.length > 0 && (
+      <div class="page">
+        <div class="section-head">
+          <h2>그밖에 쓴 것들</h2>
+          <a class="more" href="/essays">
+            전부 보기 →
+          </a>
+        </div>
+
+        <div class="index">
+          {rest.map((e, i) => (
+            <EssayRow
+              href={`/essays/${e.id}`}
+              index={i + 2}
+              title={e.data.title}
+              excerpt={e.data.excerpt ?? autoExcerpt(e.body)}
+              date={e.data.date}
+              tags={e.data.tags}
+              readingTime={readingMinutes(e.body)}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  {
+    notes.length > 0 && (
+      <div class="page">
+        <div class="section-head">
+          <h2>노트</h2>
+          <a class="more" href="/notes">
+            전부 보기 →
+          </a>
+        </div>
+
+        <div>
+          {notes.map((n) => (
+            <article class="note-card reveal">
+              <div class="feature__meta">
+                <FormattedDate date={n.data.date} style="short" />
+                {n.data.tags.map((t) => (
+                  <a class="tag" href={`/tags/${encodeURIComponent(t)}`}>
+                    {t}
+                  </a>
+                ))}
+              </div>
+              <h3>{n.data.title}</h3>
+              <p class="note-card__body">{autoExcerpt(n.body, 180)}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    )
+  }
+</Base>

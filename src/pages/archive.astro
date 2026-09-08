@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { allEssays, allNotes } from '../lib/collections';
+
+const essays = await allEssays();
+const notes = await allNotes();
+
+type Item = { title: string; href: string; date: Date; kind: '글' | '노트' };
+
+const items: Item[] = [
+  ...essays.map((e) => ({
+    title: e.data.title,
+    href: `/essays/${e.id}`,
+    date: e.data.date,
+    kind: '글' as const,
+  })),
+  ...notes.map((n) => ({
+    title: n.data.title,
+    href: `/notes#${n.id}`,
+    date: n.data.date,
+    kind: '노트' as const,
+  })),
+].sort((a, b) => b.date.valueOf() - a.date.valueOf());
+
+const years = [...new Set(items.map((i) => i.date.getFullYear()))].sort((a, b) => b - a);
+---
+
+<Base title="연대기" description="쓴 것 전부를 시간순으로.">
+  <section class="hero page">
+    <p class="label">Archive</p>
+    <h1 class="hero__title" style="margin-top:var(--space-s);font-size:var(--step-4)">연대기</h1>
+    <p class="hero__lede">쓴 것 전부. 오래된 글도 지우지 않습니다. 틀렸던 것도 기록이니까요.</p>
+  </section>
+
+  <div class="page" style="margin-top:var(--space-m)">
+    {
+      years.map((y) => (
+        <section class="archive-year">
+          <h2 class="archive-year__label">{y}</h2>
+          <div>
+            {items
+              .filter((i) => i.date.getFullYear() === y)
+              .map((i) => (
+                <a class="archive-item" href={i.href}>
+                  <span class="archive-item__title">{i.title}</span>
+                  <span style="display:flex;gap:1rem;align-items:baseline;flex:none">
+                    <span class="label">{i.kind}</span>
+                    <FormattedDate date={i.date} style="short" />
+                  </span>
+                </a>
+              ))}
+          </div>
+        </section>
+      ))
+    }
+    {
+      items.length === 0 && (
+        <p style="padding-block:var(--space-l);color:var(--ink-3)">아직 비어 있습니다.</p>
+      )
+    }
+  </div>
+</Base>
