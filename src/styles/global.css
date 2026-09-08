@@ -975,3 +975,13 @@ sup a {
 .note-card__body.prose > * { margin-block: 0 1em; }
 .note-card__body.prose h2 { font-size: var(--step-1); margin-top: 1.6em; }
 .note-card__body.prose h2::before { display: none; }
+
+/* 워드마크 앞의 마크 — 글자와 밑선을 맞추고, 가리키면 살짝 내려앉는다 */
+.wordmark__logo {
+  align-self: center;
+  margin-right: 0.1rem;
+  flex: none;
+  transition: transform 420ms var(--ease);
+}
+.wordmark:hover .wordmark__logo { transform: translateY(2px) rotate(9deg); }
+@media (max-width: 34rem) { .wordmark__logo { width: 18px; height: 18px; } }

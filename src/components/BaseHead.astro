@@ -79,15 +79,32 @@ const palette = [
 <!-- 테마 결정은 첫 페인트 전에. 깜빡임을 막는다. -->
 <script is:inline>
   (function () {
-    const stored = (() => {
+    function apply() {
+      let stored = null;
       try {
-        return localStorage.getItem('theme');
+        stored = localStorage.getItem('theme');
       } catch {
-        return null;
+        /* 사생활 보호 모드 등 */
       }
-    })();
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = stored ?? (prefersDark ? 'dark' : 'light');
-    document.documentElement.dataset.theme = theme;
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = stored ?? (prefersDark ? 'dark' : 'light');
+    }
+
+    apply();
+
+    // 쪽을 넘길 때 ClientRouter 가 <html> 의 속성을 새 문서 것으로 갈아끼우면서
+    // data-theme 이 날아간다. 바뀐 직후, 화면에 그려지기 전에 다시 심는다.
+    document.addEventListener('astro:after-swap', apply);
+
+    // 시스템 설정을 따라가는 중이라면(직접 고른 적이 없다면) 그 변화도 따라간다.
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      let stored = null;
+      try {
+        stored = localStorage.getItem('theme');
+      } catch {
+        /* 무시 */
+      }
+      if (!stored) apply();
+    });
   })();
 </script>

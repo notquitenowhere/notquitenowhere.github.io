@@ -580,13 +580,14 @@ async function publishAll(message, viewPath) {
       body: JSON.stringify({ message }),
     });
 
+    const held = res.held?.length ? `\n초안 ${res.held.length}편은 올리지 않았습니다.` : '';
     if (res.step === 'nothing') {
-      toast('올릴 변경이 없습니다. 이미 최신입니다.');
+      toast('올릴 변경이 없습니다.' + held);
     } else if (res.ok) {
       const link = viewPath
         ? `\n<a href="https://notquitenowhere.github.io${viewPath}" target="_blank" rel="noopener">사이트에서 보기 ↗</a>`
         : '';
-      toast(`올렸습니다. 30초쯤 뒤 반영됩니다.${link}`, 'ok', 9000);
+      toast(`올렸습니다. 30초쯤 뒤 반영됩니다.${held}${link}`, 'ok', 9000);
     } else {
       toast(`${res.step} 단계에서 막혔습니다:\n${escapeHtml(res.out.slice(0, 400))}`, 'bad', 12000);
     }

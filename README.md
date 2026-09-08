@@ -54,8 +54,18 @@ npm run new -- "글 제목"           # src/content/essays/글-제목.md
 npm run new -- "짧은 생각" --note  # src/content/notes/짧은-생각.md
 ```
 
-새로 만든 글에는 `draft: true`가 붙어 있습니다. **개발 서버에서는 보이고, 빌드에서는 빠집니다.**
-공개할 준비가 되면 그 줄을 지우세요.
+### 비공개 저장 (초안)
+
+새 글에는 **초안** 표시가 붙습니다. 초안은
+
+- 사이트에 **올라가지 않습니다**
+- 저장소에도 **올라가지 않습니다** — 발행할 때 건너뜁니다
+- 내 컴퓨터의 `npm run dev` 미리보기에서는 보입니다
+
+공개할 준비가 되면 편집기 아래의 **초안** 체크를 풀고 **발행하기**를 누르세요.
+반대로 이미 올린 글에 초안을 다시 체크하고 발행하면 저장소에서도 내려갑니다.
+
+파일로는 프런트매터의 `draft: true` 한 줄입니다.
 
 ### 프런트매터
 
@@ -148,6 +158,15 @@ npm run new -- "짧은 생각" --note  # src/content/notes/짧은-생각.md
 
 글마다 다른 강조색을 쓰고 싶으면 그 글의 `accent` 항목을 채우세요. 사이트 색보다 우선합니다.
 
+### 마크
+
+사이트 마크는 **아직 내려앉지 않은 핀**입니다 — 지도 핀이 살짝 기울어 떠 있고, 그 아래에
+닿아야 할 자리가 점으로 찍혀 있습니다. 아직 어디에도 완전히 도착하지 않았다는 뜻.
+
+[`src/components/Logo.astro`](src/components/Logo.astro) 한 파일이고, 색은 강조색을 따릅니다.
+파비콘도 [`src/pages/favicon.svg.ts`](src/pages/favicon.svg.ts) 라우트라 고른 색을 그대로
+따라가고, 밝을 때·어두울 때가 따로 있습니다.
+
 ### 그 밖
 
 활자와 간격은 [`src/styles/global.css`](src/styles/global.css) 맨 위 토큰에 있습니다.
@@ -223,16 +242,6 @@ editor/                    글 편집기 (npm run write). 사이트에는 안 �
 ```
 
 RSS는 `/rss.xml`, 사이트맵은 `/sitemap-index.xml`에 자동 생성됩니다.
-
-## 7. 지워도 되는 것들
-
-예시로 넣어둔 글 세 편과 노트 두 편, 그리고 삽화 하나입니다. 직접 쓰기 시작할 때 지우세요.
-
-```bash
-rm src/content/essays/*.md src/content/essays/*.mdx
-rm src/content/notes/*.md
-rm public/images/arcs.svg
-```
 
 ---
 

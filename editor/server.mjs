@@ -338,14 +338,28 @@ const routes = {
     const add = await git(['add', '-A']);
     if (!add.ok) return { ok: false, step: 'add', out: add.out };
 
-    const status = await git(['status', '--porcelain']);
-    if (!status.out.trim()) return { ok: false, step: 'nothing', out: '올릴 변경이 없습니다.' };
+    // 초안은 올리지 않는다. 내 컴퓨터에만 남는다.
+    // 한 번 올렸던 글을 다시 초안으로 돌리면 저장소에서도 내린다.
+    const drafts = (await listPosts()).filter((p) => p.draft).map((p) => p.file);
+    const held = [];
+    for (const file of drafts) {
+      const tracked = await git(['ls-files', '--error-unmatch', '--', file]);
+      const step = tracked.ok
+        ? await git(['rm', '--cached', '--quiet', '--', file])
+        : await git(['reset', '--quiet', '--', file]);
+      if (step.ok) held.push(file);
+    }
+
+    const staged = await git(['diff', '--cached', '--name-only']);
+    if (!staged.out.trim()) {
+      return { ok: false, step: 'nothing', out: '올릴 변경이 없습니다.', held };
+    }
 
     const commit = await git(['commit', '-m', message]);
-    if (!commit.ok) return { ok: false, step: 'commit', out: commit.out };
+    if (!commit.ok) return { ok: false, step: 'commit', out: commit.out, held };
 
     const push = await git(['push', 'origin', 'HEAD']);
-    return { ok: push.ok, step: push.ok ? 'done' : 'push', out: push.out };
+    return { ok: push.ok, step: push.ok ? 'done' : 'push', out: push.out, held };
   },
 };
 

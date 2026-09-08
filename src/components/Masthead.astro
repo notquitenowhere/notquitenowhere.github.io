@@ -1,4 +1,5 @@
 ---
+import Logo from './Logo.astro';
 import { SITE, NAV } from '../consts';
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -13,6 +14,7 @@ const tail = cut > 0 ? SITE.title.slice(cut) : '';
 <header class="masthead">
   <div class="masthead__inner">
     <a class="wordmark" href="/" aria-label={`${SITE.title} 홈`}>
+      <Logo class="wordmark__logo" />
       <span class="wordmark__ko">{head}{tail && <span class="wordmark__tail">{tail}</span>}</span>
       <span class="wordmark__la">{SITE.titleLatin}</span>
     </a>
