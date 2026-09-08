@@ -41,6 +41,7 @@ const THEME_FIELDS = [
 
 const THEME_PRESETS = [
   { name: '주칠',   light: ['#f6f3ec', '#16140f', '#a8321e'], dark: ['#14130f', '#ece7da', '#e07a56'] },
+  { name: '창공',   light: ['#f2f4f9', '#111524', '#3c6cec'], dark: ['#0d1020', '#e4e8f5', '#7f9dff'] },
   { name: '쪽빛',   light: ['#f4f4f1', '#12151a', '#274c77'], dark: ['#101317', '#e6e8ea', '#7aa5d2'] },
   { name: '이끼',   light: ['#f3f4ef', '#151810', '#3f6b46'], dark: ['#101310', '#e4e8dd', '#7fb488'] },
   { name: '먹',     light: ['#f4f4f4', '#141414', '#404040'], dark: ['#121212', '#e8e8e8', '#b4b4b4'] },

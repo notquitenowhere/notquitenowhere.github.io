@@ -28,7 +28,7 @@ const { progress = false, ...head } = Astro.props;
 
   <body>
     <a class="skip" href="#main">본문으로 건너뛰기</a>
-    <Sky />
+    <Sky quiet={progress} />
     {progress && <div class="progress" data-progress aria-hidden="true"></div>}
 
     <div class="site">

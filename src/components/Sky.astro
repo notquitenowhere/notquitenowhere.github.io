@@ -2,19 +2,25 @@
 import { THEME } from '../consts';
 
 /**
- * 배경 하늘 — 듀오톤 구름 연무.
+ * 배경 하늘 — 맑은 하늘.
  *
- * 사진이 아니라 브라우저가 그리는 프랙탈 노이즈입니다. 그래서
- *   · 파일이 없고 (0바이트)
- *   · 「페이지 → 색」에서 고른 종이·강조색을 그대로 따라가며
- *   · 밝을 때와 어두울 때가 저절로 갈립니다.
+ * 구름과 하늘 사이에 경계가 없습니다. 아주 낮은 주파수의 프랙탈 노이즈를
+ * 크게 흐려, 색이 번지듯 섞이게 만들었습니다. 사진도 이미지 파일도 없습니다.
  *
- * 구름은 위쪽에 몰리고 아래로 갈수록 걷힙니다. 글을 읽는 자리를 비워두려는 것.
- * 세기(strength)를 올리면 레퍼런스처럼 짙은 하늘이 되고, 내리면 종이에 가까워집니다.
+ * 색은 두 극(짙은 쪽 ↔ 밝은 쪽) 사이의 듀오톤이고, 두 극 모두 팔레트에서
+ * 나옵니다. 그래서 「페이지 → 색」에서 강조색을 바꾸면 하늘색이 바뀌고,
+ * 밝을 때와 어두울 때가 저절로 갈립니다.
  */
+interface Props {
+  /** 글 읽는 쪽에서는 하늘을 옅게 물린다. */
+  quiet?: boolean;
+}
+const { quiet = false } = Astro.props;
+
 const sky = (THEME as { sky?: { on?: boolean; strength?: number } }).sky;
 const on = sky?.on !== false;
-const strength = typeof sky?.strength === 'number' ? sky.strength : 0.55;
+const base = typeof sky?.strength === 'number' ? sky.strength : 0.55;
+const strength = quiet ? base * 0.3 : base;
 ---
 
 {
@@ -22,66 +28,76 @@ const strength = typeof sky?.strength === 'number' ? sky.strength : 0.55;
     <div class="sky" aria-hidden="true" style={`--sky: ${strength}`}>
       <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
         <defs>
-          {/* 큰 덩어리 구름 */}
-          <filter id="haze-a" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency="0.0021" numOctaves="5" seed="9" stitchTiles="stitch" />
+          {/* 아주 크고 부드러운 덩어리. 경계가 생기지 않도록 크게 흐린다. */}
+          <filter id="sky-a" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.00085" numOctaves="3" seed="5" stitchTiles="stitch" />
             <feColorMatrix
               type="matrix"
               values="0 0 0 0 1
                       0 0 0 0 1
                       0 0 0 0 1
-                      1.9 0 0 0 -0.52"
+                      2.20 0 0 0 -1.02"
             />
-            <feGaussianBlur stdDeviation="16" />
+            <feGaussianBlur stdDeviation="46" />
           </filter>
 
-          {/* 잘게 흩어진 결 */}
-          <filter id="haze-b" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency="0.0058" numOctaves="4" seed="23" stitchTiles="stitch" />
+          <filter id="sky-b" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.0016 0.0011" numOctaves="3" seed="31" stitchTiles="stitch" />
             <feColorMatrix
               type="matrix"
               values="0 0 0 0 1
                       0 0 0 0 1
                       0 0 0 0 1
-                      1.5 0 0 0 -0.46"
+                      2.45 0 0 0 -1.20"
             />
-            <feGaussianBlur stdDeviation="7" />
+            <feGaussianBlur stdDeviation="34" />
           </filter>
 
-          {/* 아래로 갈수록 구름이 걷힌다 */}
-          <linearGradient id="haze-fade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#000" stop-opacity="0" />
-            <stop offset="40%" stop-color="#000" stop-opacity="0.12" />
-            <stop offset="72%" stop-color="#000" stop-opacity="0.72" />
-            <stop offset="100%" stop-color="#000" stop-opacity="0.95" />
+          {/* 길게 늘어진 새털구름 */}
+          <filter id="sky-c" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.0038 0.0009" numOctaves="4" seed="77" stitchTiles="stitch" />
+            <feColorMatrix
+              type="matrix"
+              values="0 0 0 0 1
+                      0 0 0 0 1
+                      0 0 0 0 1
+                      2.90 0 0 0 -1.52"
+            />
+            <feGaussianBlur stdDeviation="18" />
+          </filter>
+
+          <mask id="sky-mask-a"><rect width="1600" height="1000" fill="#fff" filter="url(#sky-a)" /></mask>
+          <mask id="sky-mask-b"><rect width="1600" height="1000" fill="#fff" filter="url(#sky-b)" /></mask>
+          <mask id="sky-mask-c"><rect width="1600" height="1000" fill="#fff" filter="url(#sky-c)" /></mask>
+
+          {/* 바탕 하늘 — 위가 짙고 아래로 트인다 */}
+          <linearGradient id="sky-air" x1="0.15" y1="0" x2="0.6" y2="1">
+            <stop offset="0%" stop-color="var(--sky-deep)" />
+            <stop offset="55%" stop-color="var(--sky-mid)" />
+            <stop offset="100%" stop-color="var(--sky-near)" />
           </linearGradient>
 
-          <mask id="haze-mask-a" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000">
-            <rect width="1600" height="1000" fill="#fff" filter="url(#haze-a)" />
-            <rect width="1600" height="1000" fill="url(#haze-fade)" />
-          </mask>
-
-          <mask id="haze-mask-b" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000">
-            <rect width="1600" height="1000" fill="#fff" filter="url(#haze-b)" />
-            <rect width="1600" height="1000" fill="url(#haze-fade)" />
-          </mask>
-
-          {/* 위쪽 하늘의 옅은 물듦 */}
-          <linearGradient id="haze-air" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.16" />
-            <stop offset="52%" stop-color="var(--accent)" stop-opacity="0.03" />
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
-          </linearGradient>
+          {/* 구름 뒤에서 번지는 빛 */}
+          <radialGradient id="sky-glow" cx="0.72" cy="0.18" r="0.75">
+            <stop offset="0%" stop-color="var(--sky-glow)" stop-opacity="0.22" />
+            <stop offset="55%" stop-color="var(--sky-glow)" stop-opacity="0.06" />
+            <stop offset="100%" stop-color="var(--sky-glow)" stop-opacity="0" />
+          </radialGradient>
         </defs>
 
-        <rect width="1600" height="1000" fill="url(#haze-air)" />
+        <rect width="1600" height="1000" fill="url(#sky-air)" />
 
         <g class="sky__a">
-          <rect width="1600" height="1000" fill="var(--accent)" mask="url(#haze-mask-a)" opacity="0.5" />
+          <rect width="1600" height="1000" fill="var(--sky-cloud)" mask="url(#sky-mask-a)" opacity="0.85" />
         </g>
         <g class="sky__b">
-          <rect width="1600" height="1000" fill="var(--accent)" mask="url(#haze-mask-b)" opacity="0.26" />
+          <rect width="1600" height="1000" fill="var(--sky-cloud-2)" mask="url(#sky-mask-b)" opacity="0.62" />
         </g>
+        <g class="sky__c">
+          <rect width="1600" height="1000" fill="var(--sky-cloud)" mask="url(#sky-mask-c)" opacity="0.4" />
+        </g>
+
+        <rect width="1600" height="1000" fill="url(#sky-glow)" />
       </svg>
     </div>
   )
@@ -93,30 +109,50 @@ const strength = typeof sky?.strength === 'number' ? sky.strength : 0.55;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    /* 세기를 0~1 로 받아 실제 농도로 옮긴다. 1이어도 글은 읽힌다. */
-    opacity: calc(var(--sky, 0.55) * 0.85);
+    opacity: var(--sky, 0.55);
     transition: opacity 600ms var(--ease);
+
+    /* 밝을 때 — 아래에서 올려다본 맑은 하늘. 짙은 쪽이 위, 구름은 종이색. */
+    --sky-deep: color-mix(in srgb, var(--accent) 70%, var(--paper));
+    --sky-mid: color-mix(in srgb, var(--accent) 46%, var(--paper));
+    --sky-near: color-mix(in srgb, var(--accent) 22%, var(--paper));
+    --sky-cloud: var(--paper);
+    --sky-cloud-2: color-mix(in srgb, var(--accent) 10%, var(--paper));
+    --sky-glow: var(--paper);
   }
+
+  /* 어두울 때 — 밤하늘. 극이 뒤집혀 바탕이 짙고 구름이 떠오른다. */
+  :root[data-theme='dark'] .sky {
+    --sky-deep: color-mix(in srgb, var(--accent) 34%, var(--paper));
+    --sky-mid: color-mix(in srgb, var(--accent) 18%, var(--paper));
+    --sky-near: color-mix(in srgb, var(--accent) 6%, var(--paper));
+    --sky-cloud: color-mix(in srgb, var(--accent) 62%, var(--paper));
+    --sky-cloud-2: color-mix(in srgb, var(--accent) 30%, var(--paper));
+    --sky-glow: var(--accent);
+  }
+
   .sky svg { width: 100%; height: 100%; display: block; }
 
-  /* 어두울 때는 밤하늘이 조금 더 짙게 물든다 */
-  :root[data-theme='dark'] .sky { opacity: calc(var(--sky, 0.55) * 1.15); }
+  /* 아주 느리게 흐른다. 세 겹이 서로 다른 속도로 움직여 깊이가 생긴다. */
+  .sky__a { animation: sky-a 340s ease-in-out infinite alternate; }
+  .sky__b { animation: sky-b 230s ease-in-out infinite alternate; }
+  .sky__c { animation: sky-c 160s linear infinite alternate; }
 
-  /* 아주 느리게 흐른다. 두 겹이 서로 다른 속도로 움직여 깊이가 생긴다. */
-  .sky__a { animation: sky-drift-a 300s ease-in-out infinite alternate; }
-  .sky__b { animation: sky-drift-b 190s ease-in-out infinite alternate; }
-
-  @keyframes sky-drift-a {
-    from { transform: translate3d(-2%, 0, 0) scale(1.06); }
-    to { transform: translate3d(2%, -1%, 0) scale(1.06); }
+  @keyframes sky-a {
+    from { transform: translate3d(-3%, 1%, 0) scale(1.1); }
+    to { transform: translate3d(3%, -1%, 0) scale(1.1); }
   }
-  @keyframes sky-drift-b {
-    from { transform: translate3d(2.5%, 0.5%, 0) scale(1.08); }
-    to { transform: translate3d(-2.5%, -0.5%, 0) scale(1.08); }
+  @keyframes sky-b {
+    from { transform: translate3d(3%, -1%, 0) scale(1.12); }
+    to { transform: translate3d(-3%, 1%, 0) scale(1.12); }
+  }
+  @keyframes sky-c {
+    from { transform: translate3d(-5%, 0, 0) scale(1.14); }
+    to { transform: translate3d(5%, 0, 0) scale(1.14); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .sky__a, .sky__b { animation: none; }
+    .sky__a, .sky__b, .sky__c { animation: none; }
   }
 
   /* 본문은 하늘 위에 */
