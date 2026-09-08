@@ -385,11 +385,11 @@ async function openSite(key) {
     .join('');
 
   if (isSite) {
-    const lines = (state.site.site.links ?? []).map((l) => `${l.label} | ${l.href}`).join('\n');
     $('site-form').insertAdjacentHTML(
       'beforeend',
-      `<label><span>바깥 링크 — 한 줄에 하나, "이름 | 주소"</span><textarea id="sf-links" rows="4">${escapeHtml(lines)}</textarea></label>`,
+      `<label><span>바깥 링크</span><div id="link-rows"></div></label>`,
     );
+    renderLinkRows();
   }
 
   $('site-preview').hidden = isSite;
@@ -403,6 +403,48 @@ async function openSite(key) {
   renderSitePreview();
   markSiteSaved('열림');
   document.querySelectorAll('#list li').forEach((li) => li.classList.toggle('is-on', li.dataset.site === key));
+}
+
+/** 바깥 링크 — 이름 칸과 주소 칸으로 나눠 받는다. 형식을 설명할 필요가 없게. */
+function renderLinkRows() {
+  const box = $('link-rows');
+  if (!box) return;
+  const links = state.site.site.links ?? [];
+
+  box.innerHTML =
+    links
+      .map(
+        (l, i) => `
+        <div class="link-row" data-i="${i}">
+          <input class="lr-label" value="${escapeHtml(l.label ?? '')}" placeholder="이름" autocomplete="off" />
+          <input class="lr-href" value="${escapeHtml(l.href ?? '')}" placeholder="https://" autocomplete="off" spellcheck="false" />
+          <button type="button" class="btn btn--ghost lr-del" title="지우기">×</button>
+        </div>`,
+      )
+      .join('') + `<button type="button" class="btn btn--tiny" id="link-add">＋ 링크 추가</button>`;
+
+  box.querySelectorAll('.link-row input').forEach((el) => el.addEventListener('input', collectLinks));
+  box.querySelectorAll('.lr-del').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      state.site.site.links.splice(Number(btn.closest('.link-row').dataset.i), 1);
+      renderLinkRows();
+      touchSite();
+    }),
+  );
+  $('link-add').addEventListener('click', () => {
+    (state.site.site.links ??= []).push({ label: '', href: '' });
+    renderLinkRows();
+    $('link-rows').querySelector('.link-row:last-of-type .lr-label')?.focus();
+  });
+}
+
+/** 칸에 적힌 값을 state 로 옮긴다. 둘 다 빈 줄은 저장할 때 걸러진다. */
+function collectLinks() {
+  state.site.site.links = [...document.querySelectorAll('#link-rows .link-row')].map((row) => ({
+    label: row.querySelector('.lr-label').value.trim(),
+    href: row.querySelector('.lr-href').value.trim(),
+  }));
+  touchSite();
 }
 
 function renderSitePreview() {
@@ -441,11 +483,8 @@ async function saveSite({ quiet = true } = {}) {
       const raw = g(f.id).trim();
       state.site.site[f.id] = f.type === 'number' ? Number(raw) || 0 : raw;
     }
-    state.site.site.links = g('links')
-      .split('\n')
-      .map((line) => line.split('|').map((x) => x.trim()))
-      .filter(([label, href]) => label && href)
-      .map(([label, href]) => ({ label, href }));
+    // 링크는 칸에서 이미 state 로 옮겨져 있다. 반쪽짜리만 걸러낸다.
+    state.site.site.links = (state.site.site.links ?? []).filter((l) => l.label && l.href);
   } else {
     const b = {};
     for (const f of BANNER_FIELDS) b[f.id] = g(f.id).trim();
