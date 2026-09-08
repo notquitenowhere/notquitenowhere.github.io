@@ -43,6 +43,8 @@ npm run new -- "짧은 생각" --note  # src/content/notes/짧은-생각.md
 
 노트(`src/content/notes/`)는 `title`, `date`, `tags`, `source`, `sourceUrl`만 씁니다.
 
+선택 항목은 값을 비워두거나(`subtitle:`) 아예 줄을 지워도 됩니다. 둘 다 "안 쓴 것"으로 처리합니다.
+
 ### 본문에서 쓸 수 있는 것들
 
 일반 마크다운에 더해, `.mdx` 파일에서는 세 가지 조판 요소를 쓸 수 있습니다. 따로 import 하지

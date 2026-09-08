@@ -32,14 +32,24 @@ if (existsSync(file)) {
 
 const essay = `---
 title: ${title}
-subtitle:
-excerpt:
 date: ${today}
 tags: []
 draft: true
+# 아래는 선택 항목입니다. 쓸 때 # 을 지우세요.
+# subtitle: 제목 아래 붙는 한 줄
+# excerpt: 목록에 쓸 발췌 (없으면 본문 앞부분을 자동으로 씁니다)
+# accent: '#a8321e'    이 글만의 강조색
+# featured: true       홈 맨 위에 크게 걸기
 ---
 
 여기서부터 씁니다.
+
+{/* 쓸 수 있는 것들 —
+    각주는 마크다운 그대로: 문장[^1] ... 아래에 [^1]: 설명
+    <Sidenote n="1">여백에 붙는 주석</Sidenote>
+    <Pullquote cite="출처">크게 거는 문장</Pullquote>
+    <Figure src="/images/foo.jpg" alt="설명" caption="캡션" size="wide" />
+*/}
 `;
 
 const note = `---
@@ -47,6 +57,9 @@ title: ${title}
 date: ${today}
 tags: []
 draft: true
+# 인용한 곳이 있으면
+# source: 누구의 말
+# sourceUrl: https://...
 ---
 
 짧게 적습니다.
