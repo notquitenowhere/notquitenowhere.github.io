@@ -29,6 +29,9 @@ export async function GET(context) {
     description: SITE.description,
     site: context.site,
     items,
+    // 끄지 않으면 주소 끝에 / 가 붙어 노트의 #앵커가 깨진다
+    //   /notes#slug/  ← 이렇게
+    trailingSlash: false,
     customData: '<language>ko</language>',
   });
 }
