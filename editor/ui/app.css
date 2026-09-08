@@ -465,3 +465,11 @@ button, input, textarea { font: inherit; color: inherit; }
 
 .theme-row--sky { margin-top: 2px; }
 .theme-row--sky:first-of-type { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+
+.sky-image { display: flex !important; flex-direction: column; gap: 6px; flex: 1; min-width: 220px; }
+.sky-image > span { font-size: 12px; color: var(--ink-3); }
+.sky-image input {
+  border: 1px solid var(--rule); background: var(--paper-rise);
+  border-radius: 5px; padding: 6px 9px; font-size: 13px; outline: none;
+}
+.sky-image input:focus { border-color: var(--accent); }

@@ -349,6 +349,10 @@ function skyFormHtml() {
         <input type="range" id="sky-str" min="0" max="100" step="5"
                value="${Math.round((s.strength ?? 0.55) * 100)}" />
       </label>
+      <label class="sky-image">
+        <span>구름 그림</span>
+        <input id="sky-img" value="${escapeHtml(s.image ?? '/images/clouds.png')}" spellcheck="false" />
+      </label>
     </div>`;
 }
 
@@ -364,6 +368,7 @@ function bindSkyForm() {
   };
   on.addEventListener('change', sync);
   str.addEventListener('input', sync);
+  $('sky-img')?.addEventListener('input', touchSite);
   str.disabled = !on.checked;
 }
 
@@ -539,6 +544,7 @@ async function saveSite({ quiet = true } = {}) {
     state.site.theme.sky = {
       on: $('sky-on').checked,
       strength: Number($('sky-str').value) / 100,
+      image: $('sky-img').value.trim() || '/images/clouds.png',
       ...skyColors,
     };
   } else if (state.siteKey === 'site') {

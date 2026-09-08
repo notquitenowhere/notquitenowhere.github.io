@@ -81,6 +81,7 @@
     "sky": {
       "on": true,
       "strength": 1,
+      "image": "/images/clouds.png",
       "light": {
         "base": "#4d63e6",
         "cloud": "#efb3e6"
