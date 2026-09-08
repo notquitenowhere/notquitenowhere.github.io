@@ -42,9 +42,9 @@
   ],
   "banners": {
     "home": {
-      "kicker": "",
-      "title": "느리게 읽고\n*오래* 씁니다.",
-      "lede": "읽고, 생각하고, 남겨두는 곳. 기술과 사람 사이에서 오래 붙잡고 있던 문장들."
+      "kicker": "matwaetle's",
+      "title": "EVERDEVERNEVERCARE",
+      "lede": "사람은 생각함으로써 존재한다.\n적어도 생각한다는 착각은 하지 말자."
     },
     "essays": {
       "kicker": "Essays",
@@ -59,24 +59,24 @@
     "archive": {
       "kicker": "Archive",
       "title": "연대기",
-      "lede": ""
+      "lede": "최아성이란 사람은 어떻게 살아왔을까"
     },
     "notFound": {
       "kicker": "404",
-      "title": "여긴\n*비어* 있습니다.",
-      "lede": "주소가 바뀌었거나, 처음부터 없던 쪽입니다."
+      "title": "아무것도 없습니다.",
+      "lede": "주소가 바뀌었거나, 처음부터 없던 쪽입니다.\n돌아가세요."
     }
   },
   "theme": {
     "light": {
-      "paper": "#f6f3ec",
-      "ink": "#16140f",
-      "accent": "#66e1c2"
+      "paper": "#f4f4f1",
+      "ink": "#12151a",
+      "accent": "#274c77"
     },
     "dark": {
-      "paper": "#14130f",
-      "ink": "#ece7da",
-      "accent": "#83d067"
+      "paper": "#101317",
+      "ink": "#e6e8ea",
+      "accent": "#7aa5d2"
     }
   }
 }
