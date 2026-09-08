@@ -804,6 +804,26 @@ a.tag:hover { color: var(--accent); border-color: var(--accent); }
 }
 
 /* 6.3 그림 */
+
+/* 마크다운(.md)에서 그냥 ![](...) 로 넣은 그림.
+   바로 아래 줄에 *기울임* 한 줄을 쓰면 캡션으로 조판한다. */
+.prose p:has(> img:only-child) {
+  margin-block: var(--space-m) 0.8em;
+  background: var(--paper-sunk);
+  line-height: 0;
+}
+.prose p:has(> img:only-child) + p:has(> em:only-child) {
+  margin-top: 0;
+  margin-bottom: var(--space-m);
+  font-family: var(--font-sans);
+  font-size: var(--step--2);
+  line-height: 1.7;
+  color: var(--ink-3);
+  max-width: 34rem;
+}
+.prose p:has(> img:only-child) + p > em:only-child { font-style: normal; }
+
+/* MDX 의 <Figure> — 캡션과 폭을 직접 정할 때 */
 .figure { margin-block: var(--space-m); }
 .figure img { width: 100%; background: var(--paper-sunk); }
 .figure figcaption {
