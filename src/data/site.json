@@ -80,7 +80,15 @@
     },
     "sky": {
       "on": true,
-      "strength": 0.85
+      "strength": 1,
+      "light": {
+        "base": "#4d63e6",
+        "cloud": "#efb3e6"
+      },
+      "dark": {
+        "base": "#131a44",
+        "cloud": "#7a6ad6"
+      }
     }
   }
 }

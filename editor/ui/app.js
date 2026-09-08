@@ -39,6 +39,12 @@ const THEME_FIELDS = [
   { id: 'accent', label: '강조' },
 ];
 
+/** 배경 하늘의 두 색 — 바탕과 구름. */
+const SKY_FIELDS = [
+  { id: 'base', label: '하늘 바탕' },
+  { id: 'cloud', label: '구름' },
+];
+
 const THEME_PRESETS = [
   { name: '주칠',   light: ['#f6f3ec', '#16140f', '#a8321e'], dark: ['#14130f', '#ece7da', '#e07a56'] },
   { name: '창공',   light: ['#f2f4f9', '#111524', '#3c6cec'], dark: ['#0d1020', '#e4e8f5', '#7f9dff'] },
@@ -283,6 +289,14 @@ function openTheme() {
           <input class="theme-hex" id="th-${mode}-${f.id}" value="${escapeHtml(v)}" spellcheck="false" />
         </label>`;
       }).join('')}
+      ${SKY_FIELDS.map((f) => {
+        const v = (state.site.theme.sky?.[mode] ?? {})[f.id] ?? '#000000';
+        return `<label class="theme-row theme-row--sky">
+          <input type="color" id="sf-${mode}-${f.id}" value="${escapeHtml(v)}" />
+          <span>${f.label}</span>
+          <input class="theme-hex" id="sh-${mode}-${f.id}" value="${escapeHtml(v)}" spellcheck="false" />
+        </label>`;
+      }).join('')}
       <div class="theme-preview" id="tp-${mode}"></div>
     </div>`;
 
@@ -359,6 +373,10 @@ function onThemeInput(e) {
   if (el?.id?.startsWith('tf-')) $(el.id.replace('tf-', 'th-')).value = el.value;
   if (el?.id?.startsWith('th-') && /^#[0-9a-fA-F]{6}$/.test(el.value)) {
     $(el.id.replace('th-', 'tf-')).value = el.value;
+  }
+  if (el?.id?.startsWith('sf-')) $(el.id.replace('sf-', 'sh-')).value = el.value;
+  if (el?.id?.startsWith('sh-') && /^#[0-9a-fA-F]{6}$/.test(el.value)) {
+    $(el.id.replace('sh-', 'sf-')).value = el.value;
   }
   renderThemePreview();
   touchSite();
@@ -513,9 +531,15 @@ async function saveSite({ quiet = true } = {}) {
         state.site.theme[mode][f.id] = document.getElementById(`tf-${mode}-${f.id}`).value;
       }
     }
+    const skyColors = {};
+    for (const mode of ['light', 'dark']) {
+      skyColors[mode] = {};
+      for (const f of SKY_FIELDS) skyColors[mode][f.id] = $(`sf-${mode}-${f.id}`).value;
+    }
     state.site.theme.sky = {
       on: $('sky-on').checked,
       strength: Number($('sky-str').value) / 100,
+      ...skyColors,
     };
   } else if (state.siteKey === 'site') {
     for (const f of SITE_FIELDS) {

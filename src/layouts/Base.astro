@@ -26,7 +26,7 @@ const { progress = false, ...head } = Astro.props;
     <ClientRouter />
   </head>
 
-  <body>
+  <body class={progress ? undefined : "on-sky"}>
     <a class="skip" href="#main">본문으로 건너뛰기</a>
     <Sky quiet={progress} />
     {progress && <div class="progress" data-progress aria-hidden="true"></div>}

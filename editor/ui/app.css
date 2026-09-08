@@ -462,3 +462,6 @@ button, input, textarea { font: inherit; color: inherit; }
 .sky-strength b { color: var(--ink); font-variant-numeric: tabular-nums; }
 .sky-strength input[type='range'] { accent-color: var(--accent); width: 100%; }
 .sky-strength input:disabled { opacity: .4; }
+
+.theme-row--sky { margin-top: 2px; }
+.theme-row--sky:first-of-type { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule); }
