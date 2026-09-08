@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# 초안은 저장소에 올리지 않는다.
+#
+# 편집기의 「발행하기」뿐 아니라 터미널에서 직접 커밋할 때도 걸리도록,
+# 커밋 직전에 draft: true 가 붙은 글을 스테이지에서 뺀다.
+# 파일 자체는 그대로 남는다 — 내 컴퓨터에서만 보인다.
+#
+# 켜기:  git config core.hooksPath .githooks
+# 끄기:  git config --unset core.hooksPath
+# 이번 한 번만 건너뛰기:  git commit --no-verify
+
+held=$(mktemp) || exit 0
+
+# -z 로 받아야 한글·공백이 든 파일명이 이스케이프되지 않는다
+git diff --cached -z --name-only --diff-filter=ACM \
+  | tr '\0' '\n' \
+  | grep -E '^src/content/.*\.mdx?$' \
+  | while IFS= read -r file; do
+      [ -f "$file" ] || continue
+
+      # 프런트매터(--- 와 --- 사이) 안에 draft: true 가 있는가
+      if head -n 40 "$file" \
+         | sed -n '2,/^---$/p' \
+         | grep -qE '^draft:[[:space:]]*true[[:space:]]*$'; then
+        git rm --cached --quiet -- "$file" 2>/dev/null || git reset --quiet -- "$file"
+        printf '  %s\n' "$file" >> "$held"
+      fi
+    done
+
+if [ -s "$held" ]; then
+  printf '\n초안은 올리지 않았습니다 (내 컴퓨터에만 남습니다):\n'
+  cat "$held"
+  printf '\n올리려면 그 글의 초안 표시를 풀고 다시 커밋하세요.\n\n'
+fi
+
+rm -f "$held"
+exit 0
