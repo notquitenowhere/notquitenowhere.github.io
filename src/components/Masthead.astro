@@ -3,12 +3,17 @@ import { SITE, NAV } from '../consts';
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
+
+// 이름을 두 굵기로 갈라 한 낱말 안에 리듬을 만든다 (notquite + nowhere)
+const cut = SITE.titleSplitAt ?? 0;
+const head = cut > 0 ? SITE.title.slice(0, cut) : SITE.title;
+const tail = cut > 0 ? SITE.title.slice(cut) : '';
 ---
 
 <header class="masthead">
   <div class="masthead__inner">
     <a class="wordmark" href="/" aria-label={`${SITE.title} 홈`}>
-      <span class="wordmark__ko">{SITE.title}</span>
+      <span class="wordmark__ko">{head}{tail && <span class="wordmark__tail">{tail}</span>}</span>
       <span class="wordmark__la">{SITE.titleLatin}</span>
     </a>
 
