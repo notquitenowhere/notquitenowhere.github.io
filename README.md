@@ -67,6 +67,12 @@ npm run new -- "짧은 생각" --note  # src/content/notes/짧은-생각.md
 
 파일로는 프런트매터의 `draft: true` 한 줄입니다.
 
+터미널에서 직접 커밋할 때도 막히도록 커밋 훅을 둡니다. 저장소를 새로 받았다면 한 번만:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ### 프런트매터
 
 | 항목 | 필수 | 설명 |
@@ -157,6 +163,13 @@ npm run new -- "짧은 생각" --note  # src/content/notes/짧은-생각.md
 거기서 손봐도 됩니다. 두 모드의 미리보기가 나란히 뜹니다.
 
 글마다 다른 강조색을 쓰고 싶으면 그 글의 `accent` 항목을 채우세요. 사이트 색보다 우선합니다.
+
+### 배경 하늘
+
+배경의 구름은 사진이 아니라 브라우저가 그리는 프랙탈 노이즈입니다
+([`src/components/Sky.astro`](src/components/Sky.astro)). 종이색과 강조색 사이의
+듀오톤이라 팔레트를 바꾸면 하늘도 함께 바뀝니다. 「페이지 → 색」에서 켜고 끄고
+세기를 조절합니다.
 
 ### 마크
 
