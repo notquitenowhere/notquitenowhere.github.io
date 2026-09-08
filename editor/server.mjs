@@ -279,7 +279,11 @@ const routes = {
       full = target;
     }
 
-    await writeFile(full, buildPost(kind, payload.data ?? {}, payload.body ?? ''), 'utf8');
+    // 내용이 같으면 손대지 않는다. 쓸데없는 수정 시각 변경과
+    // 혹시 모를 변환 사고를 한 겹 더 막아준다.
+    const next = buildPost(kind, payload.data ?? {}, payload.body ?? '');
+    const prev = await readFile(full, 'utf8').catch(() => null);
+    if (prev !== next) await writeFile(full, next, 'utf8');
     return {
       file: path.relative(ROOT, full).split(path.sep).join('/'),
       ext: wantExt,
