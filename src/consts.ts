@@ -6,7 +6,8 @@ import data from './data/site.json';
  * 파일을 직접 열어 고쳐도 됩니다.
  */
 export const SITE = data.site;
-export const NAV = data.nav;
+/** '노트'는 개인 메모장이라 실제 배포본 메뉴에는 넣지 않는다 — 로컬 개발 중에만 보인다. */
+export const NAV = data.nav.filter((item) => import.meta.env.DEV || item.href !== '/notes');
 export const BANNERS = data.banners;
 export const THEME = data.theme;
 

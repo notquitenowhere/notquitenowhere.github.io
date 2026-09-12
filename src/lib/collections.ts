@@ -7,7 +7,9 @@ export async function allEssays(): Promise<CollectionEntry<'essays'>[]> {
   return items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 
+/** 노트는 개인 메모장이라 실제 배포본에는 올리지 않는다 — 로컬 개발 중에만 보인다. */
 export async function allNotes(): Promise<CollectionEntry<'notes'>[]> {
+  if (!import.meta.env.DEV) return [];
   const items = await getCollection('notes', visible);
   return items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }

@@ -6,6 +6,12 @@ import Banner from '../../components/Banner.astro';
 import { BANNERS } from '../../consts';
 import { allNotes } from '../../lib/collections';
 
+/** 노트는 개인 메모장이라 프로덕션 빌드에는 이 라우트 자체를 만들지 않는다. */
+export async function getStaticPaths() {
+  if (!import.meta.env.DEV) return [];
+  return [{ params: { slug: undefined } }];
+}
+
 const notes = await allNotes();
 const rendered = await Promise.all(
   notes.map(async (n) => ({ note: n, Content: (await render(n)).Content })),
